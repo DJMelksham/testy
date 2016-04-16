@@ -1,0 +1,8 @@
+(defvar *test-ids* (make-hash-table :test 'eql))
+(defvar *test-names* (make-hash-table :test 'equalp)) 
+(defvar *test-tags* (make-hash-table :test 'equalp))
+(defvar *test-contexts* (make-hash-table :test 'equalp))
+(defvar *print-verbosity* 'high)
+(defvar *test-ids-paths* (make-hash-table :test 'equalp))
+(defvar *test-empty-function* (lambda () nil))
+(defvar *test-style-warnings* T)
