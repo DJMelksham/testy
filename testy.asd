@@ -1,6 +1,6 @@
 ;;;; -*- Mode: Lisp; Syntax: ANSI-Common-Lisp; Base: 10 -*-
 
-(defsystem testy
+(defsystem #:testy
   :name "testy"
   :version "0.0.0"
   :maintainer "Damien John Melksham"
@@ -18,4 +18,4 @@
 	       (:file "context-object-definition")
 	       (:file "test-macros"))
 
-  :depends-on ("cl-fad"))
+  :depends-on (#:cl-fad))
