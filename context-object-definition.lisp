@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defclass context ()
   ((name
     :initarg :name

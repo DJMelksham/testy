@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defun make-test (&key 
 		    id
 		    name

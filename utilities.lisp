@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defun hash-ext-array-insert (key value hash)
   (if (nth-value 1 (gethash key hash))
       (vector-push-extend value (gethash key hash))

@@ -9,7 +9,8 @@
   :description "A Testing Framework for Common Lisp"
   :long-description "A testing framework following my own peculiar and experimental philosophy for how testing should be prioritised and designed rather than the more common OO or Xunit inspired testers"
   :serial t
-  :components ((:file "variable-definitions")
+  :components ((:file "package")
+	       (:file "variable-definitions")
                (:file "test-object-definition")
                (:file "test-runner")
                (:file "utilities")

@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defun stat-number-tests (test-identifiers)
   (length (fetch-tests test-identifiers)))
 

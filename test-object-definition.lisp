@@ -1,3 +1,5 @@
+(in-package :testy)
+
 ;; This function is currently living here because it is needed later
 ;; and I'm thinking about where to put it, and how to structure the 
 ;; project.

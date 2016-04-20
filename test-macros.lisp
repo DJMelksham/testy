@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defmacro test (&key 
 		  name
 		  description

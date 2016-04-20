@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defun test-cond (test-identifier)
   (cond ((typep test-identifier 'test)
 	 test-identifier)

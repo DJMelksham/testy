@@ -1,3 +1,5 @@
+(in-package :testy)
+
 (defvar *test-ids* (make-hash-table :test 'eql))
 (defvar *test-names* (make-hash-table :test 'equalp)) 
 (defvar *test-tags* (make-hash-table :test 'equalp))
