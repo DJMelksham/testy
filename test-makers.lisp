@@ -215,5 +215,16 @@
 (defun load-tests (directory-path)
   (map 'vector #'identity 
        (loop 
-	  for test-path in (remove-if #'cl-fad:directory-pathname-p (cl-fad:list-directory directory-path))
+	  for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
 	  collect (load-test test-path))))
+
+(defun delete-all-tests-in-dir (directory-path)
+  (loop 
+     for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
+       for i = 0 
+     do (delete-file test-path)
+     do (incf i)
+       finally (return i)))
+
+(defun delete-test-from-disk (directory-path test)
+  (delete-file (uiop:merge-pathnames* (uiop:ensure-directory-pathname directory-path) (file-on-disk test))))
