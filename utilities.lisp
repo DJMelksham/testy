@@ -17,18 +17,25 @@
 	    (remhash key hash)
 	    T))))
 
+(defun set-testy-active-project (&optional path name)
+
+  (cond ((and (null path) (null name))
+	 (setf *testy-active-name* (package-name *package*)))
+	((null path)
+	 (setf *testy-active-name* name))
+	((null name)
+	 (setf *testy-active-name* (first (last (pathname-directory path)))))
+	(t (setf *testy-active-name* name
+		 *testy-active-path* path))))
+
 (defun register-test (test)
 
   (if (not (typep test 'test))
       (return-from register-test nil))
 
-  (if (gethash (id test) *test-ids*)
-	(error (concatenate 'string "A test with ID " (write-to-string (id test)) " is already registered. Change the ID before registering again, or deregister the other test first.")))
-
   (if (gethash (string-upcase (name test)) *test-names*)
-	(error (concatenate 'string "A test named " (string-upcase (name test)) " is already registered. Change the nameof the test before registering again, or deregister the other test first.")))
+	(error (concatenate 'string "A test named " (string-upcase (name test)) " is already registered. Change the name of the test before registering again, or deregister the other test first.")))
 
-  (setf (gethash (id test) *test-ids*) test)
   (setf (gethash (name test) *test-names*) test)
   (loop for tag in (tags test)
      do (hash-ext-array-insert tag test *test-tags*))
@@ -36,49 +43,53 @@
   test)
 
 (defun deregister-test (identifier)
-  (let ((test (cond ((typep identifier 'test) identifier) 
-		    ((integerp identifier) (gethash identifier *test-ids*))
-		    ((stringp identifier) (gethash (string-upcase identifier) *test-names*))
-		    (t (return-from deregister-test nil)))))
+  (let ((test (get-test identifier)))
 
     (if (null test)
 	(return-from deregister-test nil))
     
-    (with-accessors ((id id)
-		     (name name)
+    (with-accessors ((name name)
 		     (tags tags)
 		     (file-on-disk file-on-disk)) test
       
-      (remhash id *test-ids*)
       (remhash name *test-names*)
       (loop for tag in tags
-	 do (hash-ext-array-remove tag id *test-tags*))
-      (remhash id *test-ids-paths*)
+	 do (hash-ext-array-remove tag test *test-tags*))
   
-    test)))
+      T)))
+
+(defun destroy-test (identifier &optional (path *testy-active-path*))
+  (let ((test (get-test identifier))
+	(local-path (uiop:ensure-directory-pathname path)))
+
+    (if (or (null test)
+	    (null path))
+	(return-from destroy-test nil))
+
+    (deregister-test test)
+
+    (delete-file (uiop:merge-pathnames* local-path (file-on-disk test)))
+
+    T))
+
+(defun destroy-tests (test-sequence &optional (path *testy-active-path*))
+  (let ((result t))
+	(loop for test across test-sequence
+	   do (if (not (funcall #'destroy-test test path))
+		  (setf result nil)))
+	result))
 
 (defun all-tests ()
-  (map 'vector #'identity (loop for tests being the hash-values in *test-ids*
-			     collect tests)))
+  (let ((result-array (make-array (hash-table-count *test-names*))))
+    (loop for tests being the hash-values in *test-names*
+       for i = 0 then (incf i)
+	 do (setf (svref result-array i) tests))
+    result-array))			     
 
 (defun ends-with-p (str1 str2)
   "Determine whether `str1` ends with `str2`"
   (let ((p (mismatch str2 str1 :from-end T)))
     (or (not p) (= 0 p))))
-
-(let ((x 0))
-  (defun new-test-id ()
-    (if (boundp '*test-ids*)
-	(loop until (null (nth-value 1 (gethash x *test-ids*)))
-	   do (incf x))
-	(incf x))
-    x)
-  
-  (defun set-test-id-counter (number)
-    (if (and (not (integerp number))
-	     (< 0 number))
-	nil
-	(setf x number))))
 
 (defun get-context (context-identifier)
    (cond ((symbolp context-identifier)
@@ -86,6 +97,9 @@
 	 ((stringp context-identifier) 
 	  (gethash (string-upcase context-identifier) *test-contexts*))
 	 (t nil)))
+
+(defun fetch-context (context-identifier)
+  (get-context context-identifier))
 
 (defun deregister-context (context-name)
 		    (remhash context-name *test-contexts*))
@@ -149,14 +163,20 @@
 		 (map 'list #'fetch-tests test-sequences)) 
 	  :test #'eq)))
 
-(defun run-tests (&optional (test-sequence (all-tests)) (re-evaluate 'auto))
-  (cond ((eq re-evaluate 'auto) (map 'vector #'run-test (fetch-tests test-sequence)))
-	((eq re-evaluate t) (map 'vector #'run-test-re-evaluate (fetch-tests test-sequence)))
-	((eq re-evaluate nil) (map 'vector #'run-test-no-evaluate (fetch-tests test-sequence)))
-	(t (map 'vector #'run-test (fetch-tests test-sequence)))))
+(defun run-tests (&optional (test-sequence (all-tests)) (re-evaluate 'auto) (stop-on-fail nil))
+  (let ((result t)
+	(indv-test-status t))
+    (if stop-on-fail
+	(loop for tests across test-sequence
+	   while (setf indv-test-status (funcall #'run-test tests re-evaluate))
+	   finally (setf result indv-test-status))
+	(loop for tests across test-sequence
+	   do (if (not (setf indv-test-status (funcall #'run-test tests re-evaluate)))
+		  (setf result indv-test-status))))
+	result))
 
 (defun run-tags (tags)
-  (map 'vector #'run-test (fetch-tests-from-tags tags)))
+  (run-test (fetch-tests-from-tags tags)))
 
 (defun tests-if (predicate-func test-sequence)
   (remove-if-not predicate-func (fetch-tests test-sequence)))
@@ -178,14 +198,17 @@
 (defun passing-tests (test-sequence)
   (passed-tests test-sequence))
 
-(defun low-verbosity ()
-  (setf *print-verbosity* 'low))
-
 (defun high-verbosity ()
   (setf *print-verbosity* 'high))
 
-(defun medium-verbosity ()
-  (setf *print-verbosity* 'medium))
+(defun verbosity-high ()
+  (setf *print-verbosity* 'high))
+
+(defun low-verbosity ()
+  (setf *print-verbosity* 'low))
+
+(defun verbosity-low ()
+  (setf *print-verbosity* 'low))
 
 (defun detail-tests (test-sequence)
   (let ((*print-verbosity* 'high))

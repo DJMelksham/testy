@@ -5,13 +5,66 @@
   (:export
    :load-tests
    :load-test
+   :make-test
+   :delete-all-tests-in-dir
    :deregister-test
    :deregister-tests
-   :qtest
+   :destroy-test
+   :destroy-tests
+   :set-testy-active-project
+   :get-test
+   :fetch-test
+   :get-tests
+   :fetch-tests
+   :get-tag
+   :fetch-tag
+   :fetch-tests-from-tags
+   :get-tests-from-tags
+   :combine-test-sequences
+   :load-context
+   :get-context
+   :fetch-context
+   :make-context
+   :with-context
+   :deregister-context
    :run-test
-   :make-test
    :run-tests
+   :run-tags
+   :tests-if
+   :tests-if-not
+   :map-tests
+   :failed-tests
+   :failing-tests
+   :passed-tests
+   :passing-tests
+   :high-verbosity
+   :verbosity-high
+   :low-verbosity
+   :verbosity-low
+   :detail-tests
+   :print-results
    :all-tests
-   :serialise-test
+   :serialise
    :serialise-tests
-   :stat-number-tests))
+   :stat-number-tests
+   :stat-number-passed
+   :stat-number-failed
+   :stat-perc-passed
+   :stat-ratio-passed
+   :stat-perc-failed
+   :stat-ratio-failed
+   :stat-total-run-time
+   :stat-number-conditions
+   :stat-number-errors
+   :stats
+   :print-stats
+   :test
+   :test-EQ
+   :test=
+   :test-EQL
+   :test-EQUAL
+   :test-EQUALP
+   :test-NULL
+   :test-NOT-NULL
+   :test-condition
+   :test-error))

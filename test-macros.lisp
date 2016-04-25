@@ -5,6 +5,7 @@
 		  description
 		  (source +)
 		  (expected-value *)
+		  (expectation "EQUALP")
 		  before-function-source
 		  after-function-source
 		  (type-of-test (if (null *test-style-warnings*)
@@ -12,8 +13,8 @@
 						 nil)))
   `(make-test :name ,name
 	      :description ,description
-	      :expectation "EQUALP"
 	      :source ',source
+	      :expectation ,expectation
 	      :expected-value ',expected-value
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source

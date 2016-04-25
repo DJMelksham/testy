@@ -1,7 +1,6 @@
 (in-package :testy)
 
 (defun make-test (&key 
-		    id
 		    name
 		    file-on-disk
 		    description
@@ -10,11 +9,13 @@
 		    re-evaluate
 		    source
 		    expected-value
-		    (run-value nil)
+		    run-value
 		    (run-time 0.0)
-		    (result nil)
+		    result
 		    before-function-source
+		    before-function-run-status
 		    after-function-source
+		    after-function-run-status
 		    (type-of-test (if (null *test-style-warnings*)
 				      'nw
 				      nil)))
@@ -30,8 +31,7 @@
 				(invoke-restart 'muffle-warning)))))
 		      (eval ,@body)))))
     
-    (let ((real-id (if (null id) (new-test-id) id))
-	  (real-name nil)
+    (let ((real-name nil)
 	  (real-fod nil)
 	  (real-desc nil)
 	  (real-exp nil)
@@ -49,7 +49,12 @@
       ;;producing test name
       
       (if (not name) 
-	  (setf real-name (concatenate 'string (package-name *package*) ":TEST-" (write-to-string real-id)))
+	  (setf real-name
+		(let ((resulting-real-name (concatenate 'string *testy-active-name* ":TEST-0")))
+		  (loop for i = 0 then (incf i)
+		     while (gethash resulting-real-name *test-names*)
+		     do (setf resulting-real-name (concatenate 'string *testy-active-name* ":TEST-" (write-to-string i))))
+		  resulting-real-name))
 	  (setf real-name (string-upcase name)))
       
       (if (gethash real-name *test-names*)
@@ -79,7 +84,6 @@
 	  (setf real-desc "No valid description has been supplied for this test.")
 	  (setf real-desc description))
       
-      ;;producing test expectation
       ;;hardcoded test expectations for now...
       (cond ((null expectation) 
 	     (setf real-exp "EQUALP"))
@@ -102,7 +106,6 @@
 		 (return-from make-test nil))))
       
       ;;producing test tags
-      
       (cond ((and (not (listp tags))
 		  (not (stringp tags))
 		  (notevery #'stringp tags)) 
@@ -172,7 +175,6 @@
 	  (setf real-compiled-after-function-form (nw-eval? real-after-function-source)))
       
       (register-test  (make-instance 'test
-		   :id real-id
 		   :name real-name
 		   :file-on-disk real-fod
 		   :description real-desc
@@ -188,7 +190,9 @@
 		   :before-function-source real-before-function-source
 		   :before-function-compiled-form real-compiled-before-function-form
 		   :after-function-source real-after-function-source
+		   :before-function-run-status before-function-run-status
 		   :after-function-compiled-form real-compiled-after-function-form
+		   :after-function-run-status after-function-run-status
 		   :type-of-test real-type-of-test)))))
 
 
@@ -209,7 +213,9 @@
 		 :run-time (cdr (assoc 'RUN-TIME a-list))
 		 :result (cdr (assoc 'RESULT a-list))
 		 :before-function-source (cdr (assoc 'BEFORE-FUNCTION-SOURCE a-list))
+		 :before-function-run-status (cdr (assoc 'BEFORE-FUNCTION-RUN-STATUS a-list))
 		 :after-function-source (cdr (assoc 'AFTER-FUNCTION-source a-list))
+		 :after-function-run-status (cdr (assoc 'AFTER-FUNCTION-RUN-STATUS a-list))
 		 :type-of-test (cdr (assoc 'TYPE-OF-TEST a-list))))))
 
 (defun load-tests (directory-path)

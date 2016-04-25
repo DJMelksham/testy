@@ -9,32 +9,7 @@
          (string= control "undefined ~(~A~): ~S")))
 
 (defclass test ()
-  ((expectation-table
-    :initform (let ((ex-table (make-hash-table :test #'equalp :size 16)))
-		(setf (gethash "EQ" ex-table) #'eq
-		      (gethash "=" ex-table) #'=
-		      (gethash "EQL" ex-table) #'eql
-		      (gethash "EQUAL" ex-table) #'equal
-		      (gethash "EQUALP" ex-table) #'equalp
-		      (gethash "NULL" ex-table) (lambda (x y) (eq x y))
-		      (gethash "NOT-NULL" ex-table) (lambda (x y) (not (eq x y)))
-		      (gethash "T" ex-table) (lambda (x y) (eq x y))
-		      (gethash "CONDITION" ex-table) (lambda (&optional (type 'condition) x)
-							       (typep x type))
-		      (gethash "ERROR" ex-table) (lambda (&optional (type 'error) x)
-						   (typep x type)))
-		ex-table)
-    :type 'hash-table
-    :accessor expectation-table
-    :allocation :class
-    :documentation "The class-based lookup table for expectation functions ")
-   (id
-    :initarg :id
-    :initform (error "A test needs an integer test-id")
-    :type 'integer
-    :accessor id
-    :documentation "A unique integer identifying each test")
-   (name
+  ((name
     :initarg :name
     :initform (error "A test must have a unique identifiable name.")
     :type 'string
@@ -113,6 +88,11 @@
     :type 'function
     :accessor before-function-compiled-form
     :documentation "A compiled zero argument function that will be funcall'd  before the test.")
+   (before-function-run-status
+    :initarg :before-function-run-status
+    :initform nil
+    :accessor before-function-run-status
+    :documentation "Determines whether before-function application raised a condition")
    (after-function-source
     :initarg :after-function-source
     :initform nil
@@ -125,6 +105,11 @@
     :type 'function
     :accessor after-function-compiled-form
     :documentation "A compiled zero argument function that will be funcall'd after the test")
+   (after-function-run-status
+    :initarg :after-function-run-status
+    :initform nil
+    :accessor after-function-run-status
+    :documentation "Determines whether after-function application raised a condition")
    (type-of-test
     :initarg :type-of-test
     :initform nil
@@ -136,9 +121,8 @@
   (:documentation "Serialise the given object to disk"))
 
 (defmethod serialise (pathname (object test))
-  (let ((local-pathname (if (cl-fad:directory-pathname-p pathname)
-			    (cl-fad:merge-pathnames-as-file pathname (file-on-disk object))
-			    pathname)))
+  (let ((local-pathname 
+	 (uiop:merge-pathnames* (uiop:ensure-directory-pathname pathname) (file-on-disk object))))
     
     (with-open-file (stream local-pathname
 			    :direction :output
@@ -155,19 +139,20 @@
 		 (cons 'SOURCE (source object))
 		 (cons 'RE-EVALUATE (re-evaluate object))
 		 (cons 'EXPECTED-VALUE (expected-value object))
-		 (cons 'RUN-VALUE (run-value object))
+		 (cons 'RUN-VALUE (with-output-to-string (out) (format out "~a" (run-value object))))
 		 (cons 'RUN-TIME (run-time object))
 		 (cons 'RESULT (result object))
 		 (cons 'BEFORE-FUNCTION-SOURCE (before-function-source object))
+		 (cons 'BEFORE-FUNCTION-RUN-STATUS (with-output-to-string (out) (format out "~a" (before-function-run-status object))))
 		 (cons 'AFTER-FUNCTION-SOURCE (after-function-source object))
+		 (cons 'AFTER-FUNCTION-RUN-STATUS (with-output-to-string (out) (format out "~a" (after-function-run-status object))))
 		 (cons 'TYPE-OF-TEST (type-of-test object))) stream))
     
     local-pathname))
 
 (defmethod print-object ((object test) stream)
   (print-unreadable-object (object stream)
-      (with-accessors ((id id)
-		       (name name)
+      (with-accessors ((name name)
 		       (file-on-disk file-on-disk)
 		       (description description)
 		       (expectation expectation)
@@ -180,24 +165,24 @@
 		       (status status)
 		       (result result)
 		       (before-function-source before-function-source)
-		       (after-function-source after-function-source)) object
+		       (before-function-run-status before-function-run-status)
+		       (after-function-source after-function-source)
+		       (after-function-run-status after-function-run-status)) object
 
 	(cond ((eq *print-verbosity* 'high)
 	       (progn
-		 (format stream "-------------------->~& ID: ~a~& NAME: ~a~& DESCRIPTION: ~a~& FILE-ON-DISK: ~a~& TAGS: ~a~& RE-EVALUATE EACH RUN: ~a"		id name description file-on-disk tags re-evaluate)
+		 (format stream "-------------------->~& NAME: ~a~& DESCRIPTION: ~a~& FILE-ON-DISK: ~a~& TAGS: ~a~& RE-EVALUATE EACH RUN: ~a"		name description file-on-disk tags re-evaluate)
 		 (format stream "~& SOURCE: ")
 		 (format stream "~{~a~^~&~}" (cddr source))
 		 (format stream "~& EXPECTATION: ~a" expectation)
 		 (format stream "~& EXPECTED VALUE: ~a" expected-value)
-		 (if run-value (format stream "~& RUN VALUE: ~a" run-value))
+		 (format stream "~& RUN VALUE: ~a" run-value)
 		 (format stream "~& TEST PASSED: ~a" result)
-		 (if run-time (format stream "~& RUN-TIME IN SECONDS: ~a" run-time))
-		 (if before-function-source (format stream "~& FUNCTION THAT RUNS BEFORE THE TEST: ~a" before-function-source))
-		 (if after-function-source (format stream "~& FUNCTION THAT RUNS AFTER THE TEST: ~a" after-function-source))))
-	      ((eq *print-verbosity* 'medium) 
-	       (progn
-		 (format stream "---------------------~& ***   ~a   *** ~& ID: ~a | NAME: ~a " (if result "PASSED!" "FAILED!") id name))
-		 (format stream "~& SUMMARY: (~a ~a ~a)" expectation expected-value run-value))
+		 (format stream "~& RUN-TIME IN SECONDS: ~3$" run-time)
+		 (format stream "~& FUNCTION THAT RUNS BEFORE THE TEST: ~a" before-function-source)
+		 (format stream "~& RUN STATUS OF BEFORE-TEST FUNCTION: ~a" before-function-run-status)
+		 (format stream "~& FUNCTION THAT RUNS AFTER THE TEST: ~a" after-function-source)
+		 (format stream "~& RUN STATUS OF AFTER-TEST FUNCTION: ~a" after-function-run-status)))
 	      ((eq *print-verbosity* 'low)
-	       (format stream " TEST ~a ~a " id (if result "PASS" "FAIL")))))))
+	       (format stream "~a: ~a" name (if result "PASS" "FAIL")))))))
 	    

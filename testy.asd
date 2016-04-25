@@ -19,4 +19,4 @@
 	       (:file "context-object-definition")
 	       (:file "test-macros"))
 
-  :depends-on (#:cl-fad))
+  :depends-on (#:uiop))

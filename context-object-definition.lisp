@@ -18,7 +18,7 @@
     :initform nil
     :type 'string
     :accessor file-on-disk
-    :documentation "The name of the context as written out to disk in the project's context folder")
+    :documentation "The name of the context written out to disk in the project's context folder")
    (re-evaluate
     :initarg :re-evaluate
     :accessor re-evaluate
@@ -147,8 +147,8 @@
 	final-context))
 
 (defmethod serialise (pathname (object context))
-  (let ((local-pathname (if (cl-fad:directory-pathname-p pathname)
-			    (cl-fad:merge-pathnames-as-file pathname (concatenate 'string (name object) ".context"))
+  (let ((local-pathname (if (uiop:directory-pathname-p pathname)
+			    (uiop:merge-pathnames* pathname (concatenate 'string (name object) ".context"))
 			    pathname)))
     
     (with-open-file (stream local-pathname
