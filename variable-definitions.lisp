@@ -7,7 +7,6 @@
 (defvar *test-contexts* (make-hash-table :test 'equalp))
 (defvar *print-verbosity* 'high)
 (defvar *test-empty-function* (lambda () nil))
-(defvar *test-style-warnings* T)
 (defvar *expectation-table*
   (let ((ex-table (make-hash-table :test #'equal :size 16)))
     (setf (gethash "EQ" ex-table) #'eq

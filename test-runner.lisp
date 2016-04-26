@@ -15,15 +15,18 @@
 
 (defun run-test (test &optional (re-evaluate 'auto))
 
+  
   (macrolet ((nw-eval? (&rest body)
 	       `(if (not (eq (type-of-test test) 'nw))
 		    (eval ,@body)
-		    (handler-bind
-			((style-warning 
-			  #'(lambda (w) 
-			      (when (undefined-warning-p w)
-				(invoke-restart 'muffle-warning)))))
-		      (eval ,@body)))))
+		    (locally
+			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
+		      (handler-bind
+			  ((style-warning #'(lambda (w) 
+					      (when (undefined-warning-p w)
+						(invoke-restart 'muffle-warning))))
+			   (sb-int:type-warning #'muffle-warning))
+		      (eval ,@body))))))
 
     
     (let ((test-time-start 0.0)

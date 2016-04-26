@@ -22,14 +22,16 @@
   
   
   (macrolet ((nw-eval? (&rest body)
-	       `(if (not (eq real-type-of-test 'nw))
+	       `(if (not (eq real-type-of-test 'nw)) 
 		    (eval ,@body)
-		    (handler-bind
-			((style-warning 
-			  #'(lambda (w) 
-			      (when (undefined-warning-p w)
-				(invoke-restart 'muffle-warning)))))
-		      (eval ,@body)))))
+		    (locally
+			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
+		      (handler-bind
+			  ((style-warning #'(lambda (w) 
+					      (when (undefined-warning-p w)
+						(invoke-restart 'muffle-warning))))
+			   (sb-int:type-warning #'muffle-warning))
+		      (eval ,@body))))))
     
     (let ((real-name nil)
 	  (real-fod nil)
@@ -59,9 +61,7 @@
       
       (if (gethash real-name *test-names*)
 	  (progn
-	    (format t "The name ~a is already registered to Test ID ~a~&" 
-		    real-name
-		    (id (gethash real-name *test-names*)))
+	    (format t "The name ~a is already registered.~&" real-name)
 	    (return-from make-test nil)))
       
       ;;producing a potential file-name for the test on disk 
@@ -218,19 +218,9 @@
 		 :after-function-run-status (cdr (assoc 'AFTER-FUNCTION-RUN-STATUS a-list))
 		 :type-of-test (cdr (assoc 'TYPE-OF-TEST a-list))))))
 
-(defun load-tests (directory-path)
-  (map 'vector #'identity 
-       (loop 
-	  for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
-	  collect (load-test test-path))))
-
-(defun delete-all-tests-in-dir (directory-path)
-  (loop 
+(defun load-tests (&optional (directory-path *testy-active-path*))
+  (loop
+       for i = 0 then (incf i)
      for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
-       for i = 0 
-     do (delete-file test-path)
-     do (incf i)
-       finally (return i)))
-
-(defun delete-test-from-disk (directory-path test)
-  (delete-file (uiop:merge-pathnames* (uiop:ensure-directory-pathname directory-path) (file-on-disk test))))
+	  do (load-test test-path)
+	    finally (return i)))

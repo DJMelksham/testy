@@ -24,16 +24,17 @@
 	((null path)
 	 (setf *testy-active-name* name))
 	((null name)
-	 (setf *testy-active-name* (first (last (pathname-directory path)))))
+	 (setf *testy-active-name* (first (last (pathname-directory (uiop:ensure-directory-pathname path))))
+	       *testy-active-path* (uiop:ensure-directory-pathname path)))
 	(t (setf *testy-active-name* name
-		 *testy-active-path* path))))
+		 *testy-active-path* (uiop:ensure-directory-pathname path)))))
 
 (defun register-test (test)
 
   (if (not (typep test 'test))
       (return-from register-test nil))
 
-  (if (gethash (string-upcase (name test)) *test-names*)
+  (if (gethash (name test) *test-names*)
 	(error (concatenate 'string "A test named " (string-upcase (name test)) " is already registered. Change the name of the test before registering again, or deregister the other test first.")))
 
   (setf (gethash (name test) *test-names*) test)
@@ -73,11 +74,21 @@
     T))
 
 (defun destroy-tests (test-sequence &optional (path *testy-active-path*))
-  (let ((result t))
-	(loop for test across test-sequence
-	   do (if (not (funcall #'destroy-test test path))
-		  (setf result nil)))
-	result))
+  (loop for i = 0 then (incf i)
+     for test across test-sequence	 
+	   do (destroy-test test path)
+	finally (return i)))
+
+(defun delete-all-tests-in-dir (&optional (directory-path *testy-active-path*))
+  (loop
+     for i = 0 then (incf i)
+     for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
+     do (delete-file test-path)
+       finally (return i)))
+
+(defun delete-test-from-disk (test-identifier &optional (directory-path *testy-active-path*))
+  (let ((test (get-test test-identifier)))
+    (delete-file (uiop:merge-pathnames* (uiop:ensure-directory-pathname directory-path) (file-on-disk test)))))
 
 (defun all-tests ()
   (let ((result-array (make-array (hash-table-count *test-names*))))
@@ -150,11 +161,12 @@
 (defun get-tests-from-tags (tag-identifiers)
   (fetch-tests-from-tags tag-identifiers))
 
-(defun deregister-tests (test-sequence)
-  (map 'vector #'identity (loop for test across (fetch-tests test-sequence)
-			     do (if (typep test 'test) 
-				    (deregister-test (id test)))
-			     collect test)))
+(defun deregister-tests (&optional (test-sequence (all-tests)))
+  (loop
+     for test across test-sequence
+       for i = 1 then (incf i)
+     do (deregister-test test)
+       finally (return i)))
 
 (defun combine-test-sequences (&rest test-sequences)
  (remove nil 
@@ -187,10 +199,10 @@
 (defun map-tests (func test-sequence &key (result-type 'vector))
   (map result-type func (fetch-tests test-sequence)))
 
-(defun failed-tests (test-sequence)
+(defun failed-tests (&optional (test-sequence (all-tests)))
   (tests-if (lambda (x) (equal (result x) nil)) test-sequence))
 
-(defun passed-tests (test-sequence)
+(defun passed-tests (&optional (test-sequence (all-tests)))
   (tests-if (lambda (x) (equal (result x) t)) test-sequence))
 
 (defun failing-tests (test-sequence)
@@ -212,33 +224,32 @@
 
 (defun detail-tests (test-sequence)
   (let ((*print-verbosity* 'high))
-    (fetch-tests test-sequence)))
+    (loop for tests across test-sequence
+	 do (print tests))))
 
-(defun print-results (&optional test-sequence (stream t))
+(defun print-results (&optional (test-sequence (all-tests)) (stream t))
   
-  (let ((tests (fetch-tests (if test-sequence
-				test-sequence
-				(all-tests)))))
     (loop 
-       for test across tests
+       for test across test-sequence
        for result = (result test) then (result test)
-       for id = (id test) then (id test)
+       for name = (name test) then (name test)
        for position = 1 then (incf position)
 
        do (if (equal result t)
 	      (format stream ".")
 	      (progn (setf position 0)
-		     (format stream "~&~a~&" (id test))))
+		     (format stream "~&~a~&" name)))
        do (if (> position 50)
 	      (progn
 		(setf position 0)
-		(format stream "~&"))))
-    
-    tests))
+		(format stream "~&")))))
 
-(defun serialise-tests (directory-path &optional (test-sequence (all-tests)))
-  (map 'vector #'identity (loop for test across (fetch-tests test-sequence)
-       collect (serialise directory-path test))))
+(defun serialise-tests (&optional (directory-path *testy-active-path*)  (test-sequence (all-tests)))
+  (loop
+     for i = 0 then (incf i)
+     for test across test-sequence
+     do (serialise directory-path test)
+       finally (return i))) 
 
 (defmacro with-gensyms (syms &body body)
   `(let ,(loop for s in syms collect `(,s (gensym)))
