@@ -1,64 +1,5 @@
 (in-package :testy)
 
-(defun hash-ext-array-insert (key value hash)
-  (if (nth-value 1 (gethash key hash))
-      (vector-push-extend value (gethash key hash))
-      (setf (gethash key hash) (make-array 1  
-					   :initial-element value
-					   :adjustable t
-					   :fill-pointer 1)))
-      (fill-pointer (gethash key hash)))
-
-(defun hash-ext-array-remove (key value hash)
-  (if (nth-value 1 (gethash key hash))
-      (progn 
-	(setf (gethash key hash) (delete value (gethash key hash)))
-	(if (= 0 (fill-pointer (gethash key hash)))
-	    (remhash key hash)
-	    T))))
-
-(defun set-testy-active-project (&optional path name)
-
-  (cond ((and (null path) (null name))
-	 (setf *testy-active-name* (package-name *package*)))
-	((null path)
-	 (setf *testy-active-name* name))
-	((null name)
-	 (setf *testy-active-name* (first (last (pathname-directory (uiop:ensure-directory-pathname path))))
-	       *testy-active-path* (uiop:ensure-directory-pathname path)))
-	(t (setf *testy-active-name* name
-		 *testy-active-path* (uiop:ensure-directory-pathname path)))))
-
-(defun register-test (test)
-
-  (if (not (typep test 'test))
-      (return-from register-test nil))
-
-  (if (gethash (name test) *test-names*)
-	(error (concatenate 'string "A test named " (string-upcase (name test)) " is already registered. Change the name of the test before registering again, or deregister the other test first.")))
-
-  (setf (gethash (name test) *test-names*) test)
-  (loop for tag in (tags test)
-     do (hash-ext-array-insert tag test *test-tags*))
-
-  test)
-
-(defun deregister-test (identifier)
-  (let ((test (get-test identifier)))
-
-    (if (null test)
-	(return-from deregister-test nil))
-    
-    (with-accessors ((name name)
-		     (tags tags)
-		     (file-on-disk file-on-disk)) test
-      
-      (remhash name *test-names*)
-      (loop for tag in tags
-	 do (hash-ext-array-remove tag test *test-tags*))
-  
-      T)))
-
 (defun destroy-test (identifier &optional (path *testy-active-path*))
   (let ((test (get-test identifier))
 	(local-path (uiop:ensure-directory-pathname path)))
@@ -210,17 +151,17 @@
 (defun passing-tests (test-sequence)
   (passed-tests test-sequence))
 
-(defun high-verbosity ()
-  (setf *print-verbosity* 'high))
+;(defun high-verbosity ()
+;  (setf *print-verbosity* 'high))
 
-(defun verbosity-high ()
-  (setf *print-verbosity* 'high))
+;(defun verbosity-high ()
+;  (setf *print-verbosity* 'high))
 
-(defun low-verbosity ()
-  (setf *print-verbosity* 'low))
+;(defun low-verbosity ()
+;  (setf *print-verbosity* 'low))
 
-(defun verbosity-low ()
-  (setf *print-verbosity* 'low))
+;(defun verbosity-low ()
+;  (setf *print-verbosity* 'low))
 
 (defun detail-tests (test-sequence)
   (let ((*print-verbosity* 'high))
@@ -251,17 +192,6 @@
      do (serialise directory-path test)
        finally (return i))) 
 
-(defmacro with-gensyms (syms &body body)
-  `(let ,(loop for s in syms collect `(,s (gensym)))
-    ,@body))
-
-(defmacro once-only ((&rest names) &body body)
-  (let ((gensyms (loop for n in names collect (gensym))))
-    `(let (,@(loop for g in gensyms collect `(,g (gensym))))
-      `(let (,,@(loop for g in gensyms for n in names collect ``(,,g ,,n)))
-        ,(let (,@(loop for n in names for g in gensyms collect `(,n ,g)))
-           ,@body)))))
-
 (defmacro with-context (context-identifier &rest forms)
   (with-gensyms (result)
     (once-only (context-identifier)
@@ -279,23 +209,3 @@
 	     (funcall (after-function-compiled-form (get-context ,context-identifier))))
 	 
 	 ,result))))
-
-(defmacro defun-with-synonyms (names &rest body)
-  (append (list 'progn) 
-	  (loop for name in names
-	     for head-form = (list 'defun name) then (list 'defun name)
-	       for tail-form = nil then nil
-	       do (loop for things in body
-		       do (push things tail-form)
-		     finally (setf tail-form (reverse tail-form)))
-	       collect (append head-form tail-form))))
-
-(defmacro defmacro-with-synonyms (names &rest body)
-  (append (list 'progn) 
-	  (loop for name in names
-	     for head-form = (list 'defmacro name) then (list 'defmacro name)
-	       for tail-form = nil then nil
-	       do (loop for things in body
-		       do (push things tail-form)
-		     finally (setf tail-form (reverse tail-form)))
-	       collect (append head-form tail-form))))

@@ -20,7 +20,9 @@
   :serial t
   :components ((:file "package")
 	       (:file "dynamic-variable-definitions")
+	       (:file "first-level-helpers")
                (:file "test-object-definition")
+	       (:file "environment")
                (:file "test-runner")
                (:file "utilities")
 	       (:file "test-makers")
