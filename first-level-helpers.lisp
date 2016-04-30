@@ -43,7 +43,7 @@
 ;;;    A convenience macro for synonymous macros.  Assign a macro 
 ;;;    definition to multiple symbols  at the same time with
 ;;;    one (defmacro) form.  Not robust as of yet, but not designed
-;;;    for anything more than our particular use, for which it suffices.;;;
+;;;    for anything more than our particular use, for which it suffices.
 ;;;
 ;;;
 ;;;
@@ -108,3 +108,17 @@
 		       do (push things tail-form)
 		     finally (setf tail-form (reverse tail-form)))
 	       collect (append head-form tail-form))))
+
+(defun ends-with-p (str1 str2)
+  "Determine whether `str1` ends with `str2`"
+  (let ((p (mismatch str2 str1 :from-end T)))
+    (or (not p) (= 0 p))))
+
+(defun undefined-warning-p (w)
+  (let ((control (simple-condition-format-control w)))
+         (string= control "undefined ~(~A~): ~S")))
+
+(defun proper-output (thing)
+  (if (typep thing 'condition)
+      (with-output-to-string (out) (format out "~a" thing))
+      thing))

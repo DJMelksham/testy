@@ -4,10 +4,6 @@
 ;; and I'm thinking about where to put it, and how to structure the 
 ;; project.
 
-(defun undefined-warning-p (w)
-  (let ((control (simple-condition-format-control w)))
-         (string= control "undefined ~(~A~): ~S")))
-
 (defclass test ()
   ((name
     :initarg :name
@@ -139,13 +135,13 @@
 		 (cons 'SOURCE (source object))
 		 (cons 'RE-EVALUATE (re-evaluate object))
 		 (cons 'EXPECTED-VALUE (expected-value object))
-		 (cons 'RUN-VALUE (with-output-to-string (out) (format out "~a" (run-value object))))
+		 (cons 'RUN-VALUE (proper-output (run-value object)))
 		 (cons 'RUN-TIME (run-time object))
 		 (cons 'RESULT (result object))
 		 (cons 'BEFORE-FUNCTION-SOURCE (before-function-source object))
-		 (cons 'BEFORE-FUNCTION-RUN-STATUS (with-output-to-string (out) (format out "~a" (before-function-run-status object))))
+		 (cons 'BEFORE-FUNCTION-RUN-STATUS (proper-output (before-function-run-status object)))
 		 (cons 'AFTER-FUNCTION-SOURCE (after-function-source object))
-		 (cons 'AFTER-FUNCTION-RUN-STATUS (with-output-to-string (out) (format out "~a" (after-function-run-status object))))
+		 (cons 'AFTER-FUNCTION-RUN-STATUS (proper-output (after-function-run-status object)))
 		 (cons 'TYPE-OF-TEST (type-of-test object))) stream))
     
     local-pathname))
@@ -173,7 +169,7 @@
 	       (progn
 		 (format stream "-------------------->~& NAME: ~a~& DESCRIPTION: ~a~& FILE-ON-DISK: ~a~& TAGS: ~a~& RE-EVALUATE EACH RUN: ~a"		name description file-on-disk tags re-evaluate)
 		 (format stream "~& SOURCE: ")
-		 (format stream "~{~a~^~&~}" (cddr source))
+		 (format stream "~{~s~^~&~}" (cddr source))
 		 (format stream "~& EXPECTATION: ~a" expectation)
 		 (format stream "~& EXPECTED VALUE: ~a" expected-value)
 		 (format stream "~& RUN VALUE: ~a" run-value)

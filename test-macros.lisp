@@ -8,9 +8,7 @@
 		  (expectation "EQUALP")
 		  before-function-source
 		  after-function-source
-		  (type-of-test (if (null *test-style-warnings*)
-						 'nw
-						 nil)))
+		  type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :source ',source
@@ -27,9 +25,7 @@
 		     (expected-value *)
 		     before-function-source
 		     after-function-source
-		     (type-of-test (if (null *test-style-warnings*)
-				       'nw
-				       nil)))
+		     type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQ"
@@ -46,9 +42,7 @@
 		   (expected-value *)
 		    before-function-source
 		    after-function-source
-		   (type-of-test (if (null *test-style-warnings*)
-				     'nw
-				     nil)))
+		   type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "="
@@ -65,9 +59,7 @@
 		      (expected-value *)
 		      before-function-source
 		      after-function-source
-		      (type-of-test (if (null *test-style-warnings*)
-					'nw
-					nil)))
+		      type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQL"
@@ -84,9 +76,7 @@
 			(expected-value *)
 			before-function-source
 			after-function-source
-			(type-of-test (if (null *test-style-warnings*)
-				      'nw
-				      nil)))
+			type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQUAL"
@@ -103,9 +93,7 @@
 			 (expected-value *)
 			 before-function-source
 			 after-function-source
-			 (type-of-test (if (null *test-style-warnings*)
-					   'nw
-					   nil)))
+			 type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQUALP"
@@ -122,9 +110,7 @@
 		       (expected-value nil)
 		       before-function-source
 		       after-function-source
-		       (type-of-test (if (null *test-style-warnings*)
-					 'nw
-					 nil)))
+		       type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "NULL"
@@ -141,9 +127,7 @@
 			   (expected-value *)
 			   before-function-source
 			   after-function-source
-			   (type-of-test (if (null *test-style-warnings*)
-					     'nw
-					     nil)))
+			   type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "NOT-NULL"
@@ -160,9 +144,7 @@
 			    (expected-value 'condition)
 			    before-function-source
 			    after-function-source
-			    (type-of-test (if (null *test-style-warnings*)
-					      'nw
-					      nil)))
+			    type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "CONDITION"
@@ -179,9 +161,7 @@
 			(expected-value 'error)
 			before-function-source
 			after-function-source
-			(type-of-test (if (null *test-style-warnings*)
-					  'nw
-					  nil)))
+			type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "CONDITION"

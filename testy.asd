@@ -22,6 +22,7 @@
 	       (:file "dynamic-variable-definitions")
 	       (:file "first-level-helpers")
                (:file "test-object-definition")
+	       (:file "retrieve-arrays-of-tests")
 	       (:file "environment")
                (:file "test-runner")
                (:file "utilities")

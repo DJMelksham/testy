@@ -1,21 +1,7 @@
 (in-package :testy)
 
-(defun test-cond (test-identifier)
-  (cond ((typep test-identifier 'test)
-	 test-identifier)
-	((or (stringp test-identifier) (symbolp test-identifier)) 
-	 (gethash (string-upcase test-identifier) *test-names*))
-	(t nil)))
-
-(defun get-test (test-identifier)
-  (test-cond test-identifier))
-
-(defun fetch-test (test-identifier)
-  (test-cond test-identifier))
-
 (defun run-test (test &optional (re-evaluate 'auto))
 
-  
   (macrolet ((nw-eval? (&rest body)
 	       `(if (not (eq (type-of-test test) 'nw))
 		    (eval ,@body)

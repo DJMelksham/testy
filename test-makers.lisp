@@ -16,10 +16,7 @@
 		    before-function-run-status
 		    after-function-source
 		    after-function-run-status
-		    (type-of-test (if (null *test-style-warnings*)
-				      'nw
-				      nil)))
-  
+		    type-of-test)
   
   (macrolet ((nw-eval? (&rest body)
 	       `(if (not (eq real-type-of-test 'nw)) 
@@ -52,10 +49,10 @@
       
       (if (not name) 
 	  (setf real-name
-		(let ((resulting-real-name (concatenate 'string *testy-active-name* ":TEST-0")))
+		(let ((resulting-real-name (concatenate 'string (string *testy-active-name*) ":TEST-0")))
 		  (loop for i = 0 then (incf i)
 		     while (gethash resulting-real-name *test-names*)
-		     do (setf resulting-real-name (concatenate 'string *testy-active-name* ":TEST-" (write-to-string i))))
+		     do (setf resulting-real-name (concatenate 'string (string *testy-active-name*) ":TEST-" (write-to-string i))))
 		  resulting-real-name))
 	  (setf real-name (string-upcase name)))
       
