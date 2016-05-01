@@ -1,3 +1,11 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; System: Testy - A Testing Framework and a Triple Entendre in One!
+;;; Author: Damien John Melksham
+;;; Written using Ubuntu 16.04, SBCL 1.3.1
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (in-package :testy)
 
 (defmacro test (&key 

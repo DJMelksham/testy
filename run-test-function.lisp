@@ -1,19 +1,14 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; System: Testy - A Testing Framework and a Triple Entendre in One!
+;;; Author: Damien John Melksham
+;;; Written using Ubuntu 16.04, SBCL 1.3.1
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (in-package :testy)
 
 (defun run-test (test &optional (re-evaluate 'auto))
-
-  (macrolet ((nw-eval? (&rest body)
-	       `(if (not (eq (type-of-test test) 'nw))
-		    (eval ,@body)
-		    (locally
-			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
-		      (handler-bind
-			  ((style-warning #'(lambda (w) 
-					      (when (undefined-warning-p w)
-						(invoke-restart 'muffle-warning))))
-			   (sb-int:type-warning #'muffle-warning))
-		      (eval ,@body))))))
-
     
     (let ((test-time-start 0.0)
 	  (test-time-stop 0.0))
@@ -25,10 +20,10 @@
 	  (progn
 	    (cond ((eq re-evaluate 'auto) 
 		   (if (eq (re-evaluate test) t)
-		       (setf (before-function-compiled-form test) (nw-eval? (before-function-source test)))))
+		       (setf (before-function-compiled-form test) (nw-eval? (null (type-of-test test)) (before-function-source test)))))
 		  ((eq re-evaluate nil) nil)
 		  ((eq re-evaluate T)
-		   (setf (before-function-compiled-form test) (nw-eval? (before-function-source test))))
+		   (setf (before-function-compiled-form test) (nw-eval? (null (type-of-test test)) (before-function-source test))))
 		  (t nil))
 
 	    (multiple-value-bind (value status)
@@ -42,10 +37,10 @@
       
       (cond ((eq re-evaluate 'auto) 
 	     (if (eq (re-evaluate test) t)
-		 (setf (compiled-form test) (nw-eval? (source test)))))
+		 (setf (compiled-form test) (nw-eval? (null (type-of-test test)) (source test)))))
 	    ((eq re-evaluate nil) nil)
 	    ((eq re-evaluate T)
-	     (setf (compiled-form test) (nw-eval? (source test))))
+	     (setf (compiled-form test) (nw-eval? (null (type-of-test test)) (source test))))
 	    (t nil))
 
       (setf test-time-start (get-internal-real-time))
@@ -68,10 +63,10 @@
 	  (progn
 	    (cond ((eq re-evaluate 'auto) 
 		   (if (eq (re-evaluate test) t)
-		       (setf (after-function-compiled-form test) (nw-eval? (after-function-source test)))))
+		       (setf (after-function-compiled-form test) (nw-eval? (null (type-of-test test)) (after-function-source test)))))
 		  ((eq re-evaluate nil) nil)
 		  ((eq re-evaluate T)
-		   (setf (after-function-compiled-form test) (nw-eval? (after-function-source test))))
+		   (setf (after-function-compiled-form test) (nw-eval? (null (type-of-test test)) (after-function-source test))))
 		  (t nil))
 	    
 	    (multiple-value-bind (value status)
@@ -82,4 +77,4 @@
 	    
 	    (setf (run-time test) (/ (- test-time-stop test-time-start)
 				     1000.0))
-      (result test))))
+      (result test)))

@@ -1,3 +1,11 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; System: Testy - A Testing Framework and a Triple Entendre in One!
+;;; Author: Damien John Melksham
+;;; Written using Ubuntu 16.04, SBCL 1.3.1
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (in-package :testy)
 
 (defun make-test (&key 
@@ -17,18 +25,6 @@
 		    after-function-source
 		    after-function-run-status
 		    type-of-test)
-  
-  (macrolet ((nw-eval? (&rest body)
-	       `(if (not (eq real-type-of-test 'nw)) 
-		    (eval ,@body)
-		    (locally
-			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
-		      (handler-bind
-			  ((style-warning #'(lambda (w) 
-					      (when (undefined-warning-p w)
-						(invoke-restart 'muffle-warning))))
-			   (sb-int:type-warning #'muffle-warning))
-		      (eval ,@body))))))
     
     (let ((real-name nil)
 	  (real-fod nil)
@@ -134,7 +130,7 @@
       ;;producing test compiled form
       ;;assumes SBCL-esque default behaviour where everything is compiled unless otherwise
       ;;stated.  May need to be changed if this lisp code is ever made purely portable.
-      (setf real-compiled-form (nw-eval? real-source))
+      (setf real-compiled-form (nw-eval? (null real-type-of-test) real-source))
       
       ;;producing test expected value
       (if (null expected-value)
@@ -154,7 +150,7 @@
       (if (or (null real-before-function-source)
 	      (equal real-before-function-source '(lambda () nil)))
 	  (setf real-compiled-before-function-form *test-empty-function*)
-	  (setf real-compiled-before-function-form (nw-eval? real-before-function-source)))
+	  (setf real-compiled-before-function-form (nw-eval? (null real-type-of-test) real-before-function-source)))
       
       ;;producing test after-function-source
       (cond ((null after-function-source)
@@ -169,7 +165,7 @@
       (if (or (null real-after-function-source)
 	      (equal real-after-function-source '(lambda () nil)))
 	  (setf real-compiled-after-function-form *test-empty-function*)
-	  (setf real-compiled-after-function-form (nw-eval? real-after-function-source)))
+	  (setf real-compiled-after-function-form (nw-eval? (null real-type-of-test) real-after-function-source)))
       
       (register-test  (make-instance 'test
 		   :name real-name
@@ -190,35 +186,4 @@
 		   :before-function-run-status before-function-run-status
 		   :after-function-compiled-form real-compiled-after-function-form
 		   :after-function-run-status after-function-run-status
-		   :type-of-test real-type-of-test)))))
-
-
-(defun load-test (pathname)
-  (with-open-file (stream pathname
-			  :direction :input
-			  :if-does-not-exist :error)
-    (let ((a-list (read stream)))
-      (print a-list)
-      (make-test :name (print (cdr (assoc 'NAME a-list)))
-		 :file-on-disk (cdr (assoc 'FILE-ON-DISK a-list))
-		 :description (cdr (assoc 'DESCRIPTION a-list))
-		 :expectation (cdr (assoc 'EXPECTATION a-list))
-		 :tags (cdr (assoc 'TAGS a-list))
-		 :re-evaluate (cdr (assoc 'RE-EVALUATE a-list))
-		 :source (print (cdr (assoc 'SOURCE a-list)))
-		 :expected-value (cdr (assoc 'EXPECTED-VALUE a-list))
-		 :run-value (cdr (assoc 'RUN-VALUE a-list))
-		 :run-time (cdr (assoc 'RUN-TIME a-list))
-		 :result (cdr (assoc 'RESULT a-list))
-		 :before-function-source (cdr (assoc 'BEFORE-FUNCTION-SOURCE a-list))
-		 :before-function-run-status (cdr (assoc 'BEFORE-FUNCTION-RUN-STATUS a-list))
-		 :after-function-source (cdr (assoc 'AFTER-FUNCTION-source a-list))
-		 :after-function-run-status (cdr (assoc 'AFTER-FUNCTION-RUN-STATUS a-list))
-		 :type-of-test (cdr (assoc 'TYPE-OF-TEST a-list))))))
-
-(defun load-tests (&optional (directory-path *testy-active-path*))
-  (loop
-       for i = 0 then (incf i)
-     for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
-	  do (load-test test-path)
-	    finally (return i)))
+		   :type-of-test real-type-of-test))))

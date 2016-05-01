@@ -1,0 +1,16 @@
+
+((NAME . "GET-TESTS-1") (FILE-ON-DISK . "GET-TESTS-1.test")
+ (DESCRIPTION
+  . "Verifies that (get-tests) by default returns all of the tests that have been registered, and that all the items in the sequence are tests")
+ (EXPECTATION . "EQ") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :SOURCE (+ 1 1) :EXPECTED-VALUE 2)
+           (TEST :SOURCE (+ 1 2) :EXPECTED-VALUE 3)
+           (TEST :SOURCE (+ 1 3) :EXPECTED-VALUE 4)
+           (AND (EVERY (LAMBDA (X) (TYPEP X 'TEST)) (GET-TESTS))
+                (= (LENGTH (GET-TESTS)) 3))))
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.001)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T) (TYPE-OF-TEST)) 

@@ -1,3 +1,11 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; System: Testy - A Testing Framework and a Triple Entendre in One!
+;;; Author: Damien John Melksham
+;;; Written using Ubuntu 16.04, SBCL 1.3.1
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (in-package :testy)
 
 (defclass context ()
@@ -180,3 +188,12 @@
 		    :before-function-source (cdr (assoc 'BEFORE-FUNCTION-SOURCE a-list))
 		    :after-function-source (cdr (assoc 'AFTER-FUNCTION-source a-list))))))
 
+(defun fetch-context (context-identifier)
+  (get-context context-identifier))
+
+(defun get-context (context-identifier)
+   (cond ((symbolp context-identifier)
+	  (gethash (string-upcase context-identifier) *test-contexts*))
+	 ((stringp context-identifier) 
+	  (gethash (string-upcase context-identifier) *test-contexts*))
+	 (t nil)))

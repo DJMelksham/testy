@@ -24,37 +24,9 @@
 ;;;    Returns an array containing all currently registered tests.
 ;;;
 ;;; 2. 
-;;; 3. Simplify insertion and removal of items into hashed extendedable arrays 
-;;;    Used to store references to tests in arrays hashed by tag names.
-;;;    a) Hashed-extendable-array insert value 
-;;;    b) Hashed-extendable-array remove value
-;;;
-;;; 4. Directory-path-tail
-;;;    Return the textual name of the deepest directory in a path
-;;;
-;;; 5. Defun-with-synonyms
-;;;    A convenience macro for synonymous functions.  Assign a function 
-;;;    definition to multiple symbols at the same time with
-;;;    one (defun) form.  Not robust as of yet, but not designed
-;;;    for anything more than our particular use, for which it suffices.
-;;;
-;;; 6. Defmacro-with-synonyms
-;;;    A convenience macro for synonymous macros.  Assign a macro 
-;;;    definition to multiple symbols  at the same time with
-;;;    one (defmacro) form.  Not robust as of yet, but not designed
-;;;    for anything more than our particular use, for which it suffices.
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
-
-;;; Return an array of all currently registered tests
 
 (defun-with-synonyms (get-test fetch-test) (test-identifier)
   (cond ((typep test-identifier 'test)
@@ -70,16 +42,6 @@
        for i = 0 then (incf i)
 	 do (setf (svref result-array i) tests))
     result-array))
-
-(defun fetch-context (context-identifier)
-  (get-context context-identifier))
-
-(defun get-context (context-identifier)
-   (cond ((symbolp context-identifier)
-	  (gethash (string-upcase context-identifier) *test-contexts*))
-	 ((stringp context-identifier) 
-	  (gethash (string-upcase context-identifier) *test-contexts*))
-	 (t nil)))
 
 (defun tag-cond (tag-identifier)
   (remove-if-not 
@@ -102,13 +64,14 @@
 (defun fetch-tag (tag-identifier)
   (car (tag-cond tag-identifier)))
 
-(defun-with-synonyms (fetch-tests get-tests) (test-identifier)
+(defun-with-synonyms (fetch-tests get-tests) (&optional (test-identifier (all-tests)))
+  
   (let ((result nil))
 
     (if (or (typep test-identifier 'string)
 	    (typep test-identifier 'symbol))
-	(setf result (make-array 1 :initial-element (test-cond test-identifier)))
-	(setf result (map 'vector #'test-cond test-identifier)))
+	(setf result (make-array 1 :initial-element (get-test test-identifier)))
+	(setf result (map 'vector #'get-test test-identifier)))
     (remove-duplicates result :test #'eq)))
 
 (defun fetch-tests-from-tags (tag-identifiers)

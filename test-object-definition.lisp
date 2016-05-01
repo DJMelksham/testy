@@ -1,8 +1,12 @@
-(in-package :testy)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; System: Testy - A Testing Framework and a Triple Entendre in One!
+;;; Author: Damien John Melksham
+;;; Written using Ubuntu 16.04, SBCL 1.3.1
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; This function is currently living here because it is needed later
-;; and I'm thinking about where to put it, and how to structure the 
-;; project.
+(in-package :testy)
 
 (defclass test ()
   ((name
@@ -28,7 +32,7 @@
     :initform (error "A test must include an expectation string to compare the result of running the test function")
     :type 'string
     :accessor expectation
-    :documentation "A string representing the expectation of what happens/what function to use when the test actually runs")
+    :documentation "A string representing the expectation function that compares the value returned from running the test with what was expected to be returned if the test was to pass.")
    (tags
     :initarg :tags
     :initform nil
@@ -113,72 +117,39 @@
     :accessor type-of-test
     :documentation "A flag that may be used in the future")))
     
-(defgeneric serialise (pathname object)
-  (:documentation "Serialise the given object to disk"))
-
-(defmethod serialise (pathname (object test))
-  (let ((local-pathname 
-	 (uiop:merge-pathnames* (uiop:ensure-directory-pathname pathname) (file-on-disk object))))
-    
-    (with-open-file (stream local-pathname
-			    :direction :output
-			    :if-exists :supersede
-			    :if-does-not-exist :create)
-    (print (list (cons 'NAME (name object))
-		 (cons 'FILE-ON-DISK (concatenate 'string 
-						  (pathname-name local-pathname)
-						  "."
-						  (pathname-type local-pathname)))
-		 (cons 'DESCRIPTION (description object))
-		 (cons 'EXPECTATION (expectation object))
-		 (cons 'TAGS (tags object))
-		 (cons 'SOURCE (source object))
-		 (cons 'RE-EVALUATE (re-evaluate object))
-		 (cons 'EXPECTED-VALUE (expected-value object))
-		 (cons 'RUN-VALUE (proper-output (run-value object)))
-		 (cons 'RUN-TIME (run-time object))
-		 (cons 'RESULT (result object))
-		 (cons 'BEFORE-FUNCTION-SOURCE (before-function-source object))
-		 (cons 'BEFORE-FUNCTION-RUN-STATUS (proper-output (before-function-run-status object)))
-		 (cons 'AFTER-FUNCTION-SOURCE (after-function-source object))
-		 (cons 'AFTER-FUNCTION-RUN-STATUS (proper-output (after-function-run-status object)))
-		 (cons 'TYPE-OF-TEST (type-of-test object))) stream))
-    
-    local-pathname))
-
 (defmethod print-object ((object test) stream)
   (print-unreadable-object (object stream)
-      (with-accessors ((name name)
-		       (file-on-disk file-on-disk)
-		       (description description)
-		       (expectation expectation)
-		       (tags tags)
-		       (source source)
-		       (expected-value expected-value)
-		       (run-value run-value)
-		       (run-time run-time)
-		       (re-evaluate re-evaluate)
-		       (status status)
-		       (result result)
-		       (before-function-source before-function-source)
-		       (before-function-run-status before-function-run-status)
-		       (after-function-source after-function-source)
-		       (after-function-run-status after-function-run-status)) object
-
-	(cond ((eq *print-verbosity* 'high)
-	       (progn
-		 (format stream "-------------------->~& NAME: ~a~& DESCRIPTION: ~a~& FILE-ON-DISK: ~a~& TAGS: ~a~& RE-EVALUATE EACH RUN: ~a"		name description file-on-disk tags re-evaluate)
-		 (format stream "~& SOURCE: ")
-		 (format stream "~{~s~^~&~}" (cddr source))
-		 (format stream "~& EXPECTATION: ~a" expectation)
-		 (format stream "~& EXPECTED VALUE: ~a" expected-value)
-		 (format stream "~& RUN VALUE: ~a" run-value)
-		 (format stream "~& TEST PASSED: ~a" result)
-		 (format stream "~& RUN-TIME IN SECONDS: ~3$" run-time)
-		 (format stream "~& FUNCTION THAT RUNS BEFORE THE TEST: ~a" before-function-source)
-		 (format stream "~& RUN STATUS OF BEFORE-TEST FUNCTION: ~a" before-function-run-status)
-		 (format stream "~& FUNCTION THAT RUNS AFTER THE TEST: ~a" after-function-source)
-		 (format stream "~& RUN STATUS OF AFTER-TEST FUNCTION: ~a" after-function-run-status)))
-	      ((eq *print-verbosity* 'low)
-	       (format stream "~a: ~a" name (if result "PASS" "FAIL")))))))
+    (with-accessors ((name name)
+		     (file-on-disk file-on-disk)
+		     (description description)
+		     (expectation expectation)
+		     (tags tags)
+		     (source source)
+		     (expected-value expected-value)
+		     (run-value run-value)
+		     (run-time run-time)
+		     (re-evaluate re-evaluate)
+		     (status status)
+		     (result result)
+		     (before-function-source before-function-source)
+		     (before-function-run-status before-function-run-status)
+		     (after-function-source after-function-source)
+		     (after-function-run-status after-function-run-status)) object
+      
+      (cond ((eq *print-verbosity* 'high)
+	     (progn
+	       (format stream "-------------------->~& NAME: ~a~& DESCRIPTION: ~a~& FILE-ON-DISK: ~a~& TAGS: ~a~& RE-EVALUATE EACH RUN: ~a"		name description file-on-disk tags re-evaluate)
+	       (format stream "~& SOURCE: ")
+	       (format stream "~{~s~^~&~}" (cddr source))
+	       (format stream "~& EXPECTATION: ~a" expectation)
+	       (format stream "~& EXPECTED VALUE: ~a" expected-value)
+	       (format stream "~& RUN VALUE: ~a" run-value)
+	       (format stream "~& TEST PASSED: ~a" result)
+	       (format stream "~& RUN-TIME IN SECONDS: ~3$" run-time)
+	       (format stream "~& FUNCTION THAT RUNS BEFORE THE TEST: ~a" before-function-source)
+	       (format stream "~& RUN STATUS OF BEFORE-TEST FUNCTION: ~a" before-function-run-status)
+	       (format stream "~& FUNCTION THAT RUNS AFTER THE TEST: ~a" after-function-source)
+	       (format stream "~& RUN STATUS OF AFTER-TEST FUNCTION: ~a" after-function-run-status)))
+	    ((eq *print-verbosity* 'low)
+	     (format stream "~a: ~a" name (if result "PASS" "FAIL")))))))
 	    

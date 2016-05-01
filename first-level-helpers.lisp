@@ -114,11 +114,26 @@
   (let ((p (mismatch str2 str1 :from-end T)))
     (or (not p) (= 0 p))))
 
-(defun undefined-warning-p (w)
-  (let ((control (simple-condition-format-control w)))
-         (string= control "undefined ~(~A~): ~S")))
-
 (defun proper-output (thing)
   (if (typep thing 'condition)
       (with-output-to-string (out) (format out "~a" thing))
       thing))
+
+(defun string=lookup (symbol assoc)
+  (cdr (assoc symbol assoc :test #'string=)))
+
+(defun undefined-warning-p (w)
+  (let ((control (simple-condition-format-control w)))
+         (string= control "undefined ~(~A~): ~S")))
+
+(defmacro nw-eval? (conditional-clause &rest body)
+  `(if ,conditional-clause 
+		    (eval ,@body)
+		    (locally
+			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
+		      (handler-bind
+			  ((style-warning #'(lambda (w) 
+					      (when (undefined-warning-p w)
+						(invoke-restart 'muffle-warning))))
+			   (sb-int:type-warning #'muffle-warning))
+		      (eval ,@body)))))
