@@ -20,10 +20,6 @@
 ;;;
 ;;;  - Test Macros and Functions: Responsible for creating tests
 ;;;
-;;;  - Context Macros and Functions: Responsible for creating contexts
-;;;    ...that is to say, objects that automate some of the environment,
-;;;    setup, repetition and environment destruction when creating tests.
-;;;
 ;;;  - Test Runners: Functions that run sequences of tests.
 ;;;
 ;;;  - Test Array Generators: Functions that return arrays of tests,
@@ -33,9 +29,6 @@
 ;;;  - Testy Environment, File and Management Functions: Deal with loading,
 ;;;    serialisation, management of tests, setting active projects,
 ;;;    and testy objects/variables.
-;;;
-;;;  - Everything else: Because I can't categorise everything, you're being
-;;;    unreasonable.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -60,12 +53,6 @@
    #:fetch-tests-from-tags
    #:get-tests-from-tags
    #:combine-test-sequences
-   #:load-context
-   #:get-context
-   #:fetch-context
-   #:make-context
-   #:with-context
-   #:deregister-context
    #:run-test
    #:run-tests
    #:run-tags

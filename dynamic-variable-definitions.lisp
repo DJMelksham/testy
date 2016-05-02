@@ -23,7 +23,7 @@
 ;;
 ;; *testy-active-name* defines the name that identifies the system that
 ;; testy is currently operating on.  It's main purpose is to define
-;; default contextual test names if the user does not supply them when
+;; default test names if the user does not supply them when
 ;; creating tests.
 ;;
 ;; *testy-active-path* contains the path the appropriate test directory,
@@ -48,7 +48,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; The three variables *test-names*, *test-tags* and *test-contexts* are
+;; The two variables *test-names*, *test-tags* are
 ;; hash tables used to store quickly accessible references to their respective
 ;; members (with test-names being the one used to access tests themselves).
 ;;
@@ -59,7 +59,6 @@
 
 (defvar *test-names* (make-hash-table :test 'equalp)) 
 (defvar *test-tags* (make-hash-table :test 'equalp))
-(defvar *test-contexts* (make-hash-table :test 'equalp))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

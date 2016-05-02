@@ -32,9 +32,7 @@
 	       (:file "run-test-function")
 	       (:file "run-tests-and-tags")
 	       (:file "statistics")
-	       (:file "reporting"))
-;	       (:file "context-object-definition")
-;	       (:file "context-registration")
-;	       (:file "with-contexts")
+	       (:file "reporting")
+	       (:file "convenient-test-accessors"))
 
   :depends-on (#:uiop))
