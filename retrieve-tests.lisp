@@ -40,29 +40,13 @@
   (let ((result-array (make-array (hash-table-count *test-names*))))
     (loop for tests being the hash-values in *test-names*
        for i = 0 then (incf i)
-	 do (setf (svref result-array i) tests))
+       do (setf (svref result-array i) tests))
     result-array))
 
-(defun tag-cond (tag-identifier)
-  (remove-if-not 
-   (lambda (x) (gethash x *test-tags*))
-   (cond ((symbolp tag-identifier)
-	  (list (string-upcase tag-identifier)))
-	 ((and (not (listp tag-identifier))
-	       (not (stringp tag-identifier))
-	       (notevery #'stringp tag-identifier)) 
-	  nil)
-	 ((stringp tag-identifier) 
-	  (list (string-upcase tag-identifier)))
-	 ((typep tag-identifier 'sequence) 
-	  (remove-duplicates (map 'list #'string-upcase tag-identifier) :test #'equalp))
-	 (t nil))))
-
-(defun get-tag (tag-identifier)
-  (car (tag-cond tag-identifier)))
-
-(defun fetch-tag (tag-identifier)
-  (car (tag-cond tag-identifier)))
+(defun all-tags ()
+  "Return a list of all currently registered tags"
+  (loop for tags being the hash-keys in *test-tags*
+       collect tags))
 
 (defun-with-synonyms (fetch-tests get-tests) (&optional (test-identifier (all-tests)))
   
@@ -96,9 +80,6 @@
 
 (defun tests-if-not (predicate-func test-sequence)
   (remove-if predicate-func (fetch-tests test-sequence)))
-
-(defun map-tests (func test-sequence &key (result-type 'vector))
-  (map result-type func (fetch-tests test-sequence)))
 
 (defun failed-tests (&optional (test-sequence (all-tests)))
   (tests-if (lambda (x) (equal (result x) nil)) test-sequence))

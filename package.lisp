@@ -58,7 +58,6 @@
    #:run-tags
    #:tests-if
    #:tests-if-not
-   #:map-tests
    #:failed-tests
    #:failing-tests
    #:passed-tests

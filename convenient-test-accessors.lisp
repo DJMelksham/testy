@@ -6,100 +6,175 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Should this get tags from a test, or should it be used to get all currently registered tags
+;;; or both
 
 (defun get-tags (test)
   "Get a list of applicable tags from a test"
-
-)
+  (tags (get-test test)))
 
 (defun add-tags (test-identifiers tags)
   "Add tag/tags to tests"
-  
-)
-
+  (loop
+     for test across (get-tests test-identifiers)
+     with tag-set = (if (stringp tags)
+			(list (string-upcase tags))
+			(map 'list #'string-upcase tags))
+     do (setf (tags test) (union tag-set (tags test) :test #'string=))
+     do (loop for tag in (tags test)
+	     do (hash-ext-array-insert tag test *test-tags*))))
+	     
 
 (defun remove-tags (test-identifiers tags)
   "Remove tag/tags from tests"
-
-)
-
+  (loop
+     for test across (get-tests test-identifiers)
+     with tag-set = (if (stringp tags)
+			(list (string-upcase tags))
+			(map 'list #'string-upcase tags))
+     do (setf (tags test) (set-difference (tags test) tag-set :test #'string=))
+     do (loop for tag in (tags test)
+	     do (hash-ext-array-remove tag test *test-tags*))))
 
 (defun get-source (test)
 "Get the source-code of a test"
+ (source (get-test test)))
 
-)
+(defun set-source (test source &optional (expected-value nil ev-supplied-p))
+  "Set the source code of a test"
+  (let* ((local-test (get-test test)))
+    (cond  ((and (listp source) (not (equal (car source) 'lambda)))
+	    (setf (source local-test) (list 'lambda nil source)))
+	   ((and (listp source) (equal (car source) 'lambda))
+	    (setf (source local-test) source))
+	   (t 
+	    (setf (source local-test) (list 'lambda nil source))))
 
-(defun set-source (test source)
-"Set the source code of a test"
+    (if ev-supplied-p
+	(setf (expected-value local-test) expected-value))
 
-)
+    (setf (result local-test) nil
+	  (run-value local-test) nil)
 
-(defun get-after-source (test)
-  "Get the after-function source code of a test"
-  
-  )
+    (setf (compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (source local-test)))))
 
-(defun set-after-source (test source)
-  "Set the after-function source code of a test"
-  
-  )
+(defun set-sources (test-identifiers source &optional (expected-value nil ev-supplied-p))
+  (loop for test across (get-tests test-identifiers)
+     do (if ev-supplied-p
+	    (set-source test source expected-value)
+	    (set-source test source))))
 
-(defun set-after-sources (test-identifiers source)
-  "Set the after-function source code of multiple tests"
-  
-  )
+(defun get-expectation (test)
+  (expectation (get-test test)))
 
-(defun get-before-source (test-name)
-  "Get the before-function source code from a test"
-  
-  )
+(defun set-expectation (test expectation)
+  (let ((local-test (get-test test)))
+  (if (member (string-upcase expectation)
+	      (list "EQ" "=" "EQL" "EQUAL" "EQUALP" "NULL" "NOTNULL" "T" "CONDITION" "ERROR") :test #'equal)
+      (progn
+	(setf (expectation local-test) expectation)
+	t)
+      nil)))
 
-(defun set-before-source (test-name source)
+(defun set-expectations (test-identifiers expectation)
+  (loop for test across (get-tests test-identifiers)
+     do (if ev-supplied-p
+	    (set-source test source expected-value)
+	    (set-source test source))))
+
+(defun get-expected-value (test)
+  (expected-value (get-test test)))
+
+(defun set-expected-value (test value)
+  (setf (expected-value (get-test test)) value))
+
+(defun set-expected-values (test-identifiers value)
+  (loop for test across (get-tests test-identifiers)
+       do (set-expected-value test value)))
+
+(defun get-before-function-source (test)
+  "Get the before-function source code of a test"
+  (before-function-source (get-test test)))
+
+(defun set-before-function-source (test &optional source)
   "Set the before-function source code of a test"
-  
-  )
+  (let* ((local-test (get-test test)))
+    (cond ((null source)
+	   (setf (before-function-source local-test)
+		 *test-empty-function*))
+	  ((and (listp source) (not (equal (car source) 'lambda)))
+	   (setf (before-function-source local-test) (list 'lambda nil source)))
+	  ((and (listp source) (equal (car source) 'lambda))
+	   (setf (before-function-source local-test) source)))
 
-(defun set-before-sources (test-identifiers source)
+    (setf (before-function-compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (before-function-compiled-form local-test)))
+
+    (setf (before-function-run-status local-test) nil)
+
+    local-test))
+
+(defun set-before-function-sources (test-identifiers &optional source)
   "Set the before-function source code of multiple tests"
-  
-  )
+  (loop for test across (get-tests test-identifiers)
+       do (set-before-function-source test source)))
 
-(defun get-names (test-identifiers)
+(defun get-after-function-source (test)
+  "Get the after-function source code of a test"
+  (after-function-source (get-test test)))
 
-  )
+(defun set-after-function-source (test &optional source)
+  "Set the after-function source code of a test"
+  (let* ((local-test (get-test test)))
+    (cond ((null source)
+	   (setf (after-function-source local-test)
+		 *test-empty-function*))
+	  ((and (listp source) (not (equal (car source) 'lambda)))
+	   (setf (after-function-source local-test) (list 'lambda nil source)))
+	  ((and (listp source) (equal (car source) 'lambda))
+	   (setf (after-function-source local-test) source)))
+
+    (setf (after-function-compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (after-function-compiled-form local-test)))
+
+    (setf (after-function-run-status) nil)
+
+    local-test))
+
+(defun set-after-function-sources (test-identifiers &optional source)
+  "Set the after-function source code of multiple tests"
+  (loop for test across (get-tests test-identifiers)
+       do (set-after-function-source test source)))
+
+(defun get-name (test)
+  (name (get-test test)))
 
 (defun set-name (test new-name)
   "Set/change the name of a test"
-  
-  )
+  (let ((local-test (get-test test)))
+
+    (if (gethash (string-upcase new-name) *test-names*)
+	(progn
+	  (format t "The name ~a is already taken by another registered test." (string-upcase new-name))
+	  (return-from set-name nil))) 
+    
+    (deregister-test local-test)
+    (setf (name test) (string-upcase new-name))
+    (register-test local-test)
+
+    local-test))
 
 (defun get-description (test)
   "Get the description of a test"
-  
-  )
+  (get-description (get-test test)))
 
 (defun set-description (test description)
   "Set/change the description of a test"
-  
-  )
-
-(defun get-expectation (test)
-  "Get the expectation type of a test"
-  
-  )
-
-(defun set-expectation (test)
-  "Set/change the expectation type of a test"
-  
-  )
+  (setf (description (get-test test)) description))
 
 (defun get-run-value (test)
   "Get the latest run-value of a test"
-  
-  )
+  (run-value (get-test test)))
 
-(defun get-test-status (test)
+(defun get-result (test)
   "Get the current status of a test: whether it is T (PASS) or NIL (FAILED)."
-  
-  )
+  (result (get-test test)))
 
