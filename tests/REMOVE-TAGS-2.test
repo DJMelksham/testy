@@ -1,0 +1,17 @@
+
+((NAME . "REMOVE-TAGS-2") (FILE-ON-DISK . "REMOVE-TAGS-2.test")
+ (DESCRIPTION . "Removing a tag from two tests at the same time")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS '("toot" "poot")
+                 :EXPECTED-VALUE 2)
+           (REMOVE-TAGS '("a-test" "another-test") "poot")
+           (GET-TAGS (GET-TESTS #("another-test" "a-test")))))
+ (RE-EVALUATE) (EXPECTED-VALUE "TOOT" "WOOT") (RUN-VALUE "TOOT" "WOOT")
+ (RUN-TIME . 0.002) (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T) (TYPE-OF-TEST)) 

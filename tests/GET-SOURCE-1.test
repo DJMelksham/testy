@@ -1,0 +1,17 @@
+
+((NAME . "GET-SOURCE-1") (FILE-ON-DISK . "GET-SOURCE-1.test")
+ (DESCRIPTION . "Get the source of a test identified by its name")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS '("toot" "poot")
+                 :EXPECTED-VALUE 2)
+           (GET-SOURCE "another-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE LAMBDA NIL (+ 1 1))
+ (RUN-VALUE LAMBDA NIL (+ 1 1)) (RUN-TIME . 0.001) (RESULT . T)
+ (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL) (BEFORE-FUNCTION-RUN-STATUS . T)
+ (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL) (AFTER-FUNCTION-RUN-STATUS . T)
+ (TYPE-OF-TEST)) 

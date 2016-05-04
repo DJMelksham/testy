@@ -1,0 +1,22 @@
+
+((NAME . "SET-SOURCE-1") (FILE-ON-DISK . "SET-SOURCE-1.test")
+ (DESCRIPTION
+  . "Testing that (set-source) successfully changes the source of an already defined test, sourced by name, and also successfully changes the expected-result and, obviously, the compiled version as well")
+ (EXPECTATION . "EQ") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS '("toot" "poot")
+                 :EXPECTED-VALUE 2)
+           (SET-SOURCE "another-test" '(+ 2 2) 4)
+           (RUN-TEST (GET-TEST "another-test"))
+           (EQUALP (LIST '(LAMBDA () (+ 2 2)) 4 T)
+                   (LIST (SOURCE (GET-TEST "another-test"))
+                         (RUN-VALUE (GET-TEST "another-test"))
+                         (RESULT (GET-TEST "another-test"))))))
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.002)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T) (TYPE-OF-TEST)) 

@@ -14,6 +14,7 @@
 		  (source +)
 		  (expected-value *)
 		  (expectation "EQUALP")
+		  tags
 		  before-function-source
 		  after-function-source
 		  type-of-test)
@@ -22,6 +23,7 @@
 	      :source ',source
 	      :expectation ,expectation
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -31,6 +33,7 @@
 		     description
 		     (source +)
 		     (expected-value *)
+		     tags
 		     before-function-source
 		     after-function-source
 		     type-of-test)
@@ -39,6 +42,7 @@
 	      :expectation "EQ"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -48,14 +52,16 @@
 		   description
 		   (source +)
 		   (expected-value *)
-		    before-function-source
-		    after-function-source
+		   tags
+		   before-function-source
+		   after-function-source
 		   type-of-test)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "="
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -65,6 +71,7 @@
 		      description
 		      (source +)
 		      (expected-value *)
+		      tags
 		      before-function-source
 		      after-function-source
 		      type-of-test)
@@ -73,6 +80,7 @@
 	      :expectation "EQL"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -82,6 +90,7 @@
 			description
 			(source +)
 			(expected-value *)
+			tags
 			before-function-source
 			after-function-source
 			type-of-test)
@@ -90,6 +99,7 @@
 	      :expectation "EQUAL"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -99,6 +109,7 @@
 			 description
 			 (source +)
 			 (expected-value *)
+			 tags
 			 before-function-source
 			 after-function-source
 			 type-of-test)
@@ -107,6 +118,7 @@
 	      :expectation "EQUALP"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -116,6 +128,7 @@
 		       description
 		       (source +)
 		       (expected-value nil)
+		       tags
 		       before-function-source
 		       after-function-source
 		       type-of-test)
@@ -124,6 +137,7 @@
 	      :expectation "NULL"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -133,6 +147,7 @@
 			   description
 			   (source +)
 			   (expected-value *)
+			   tags
 			   before-function-source
 			   after-function-source
 			   type-of-test)
@@ -141,6 +156,7 @@
 	      :expectation "NOT-NULL"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -150,6 +166,7 @@
 			    description
 			    source 
 			    (expected-value 'condition)
+			    tags
 			    before-function-source
 			    after-function-source
 			    type-of-test)
@@ -158,6 +175,7 @@
 	      :expectation "CONDITION"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))
@@ -167,6 +185,7 @@
 			description
 			source 
 			(expected-value 'error)
+			tags
 			before-function-source
 			after-function-source
 			type-of-test)
@@ -175,6 +194,7 @@
 	      :expectation "CONDITION"
 	      :source ',source
 	      :expected-value ',expected-value
+	      :tags ,tags
 	      :before-function-source ',before-function-source
 	      :after-function-source ',after-function-source
 	      :type-of-test ,type-of-test))

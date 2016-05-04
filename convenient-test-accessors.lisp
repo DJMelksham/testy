@@ -6,12 +6,20 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(in-package :testy)
+
 ;;; Should this get tags from a test, or should it be used to get all currently registered tags
 ;;; or both
 
 (defun get-tags (test)
   "Get a list of applicable tags from a test"
-  (tags (get-test test)))
+  (let ((local-hash (make-hash-table :test #'equalp))
+	(local-tests (get-tests test)))
+    (loop for test across local-tests
+       do (loop for tag in (tags test)
+	     do (setf (gethash tag local-hash) T)))
+    (loop for tags being the hash-keys in local-hash
+	 collect tags)))
 
 (defun add-tags (test-identifiers tags)
   "Add tag/tags to tests"
@@ -135,7 +143,7 @@
 
     (setf (after-function-compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (after-function-compiled-form local-test)))
 
-    (setf (after-function-run-status) nil)
+    (setf (after-function-run-status local-test) nil)
 
     local-test))
 
@@ -145,7 +153,9 @@
        do (set-after-function-source test source)))
 
 (defun get-name (test)
-  (name (get-test test)))
+  (if (get-test test)
+      (name (get-test test))
+      nil))
 
 (defun set-name (test new-name)
   "Set/change the name of a test"
@@ -157,14 +167,14 @@
 	  (return-from set-name nil))) 
     
     (deregister-test local-test)
-    (setf (name test) (string-upcase new-name))
+    (setf (name local-test) (string-upcase new-name))
     (register-test local-test)
 
     local-test))
 
 (defun get-description (test)
   "Get the description of a test"
-  (get-description (get-test test)))
+  (description (get-test test)))
 
 (defun set-description (test description)
   "Set/change the description of a test"

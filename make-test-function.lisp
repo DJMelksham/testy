@@ -134,7 +134,7 @@
       
       ;;producing test expected value
       (if (null expected-value)
-	  (setf real-expected-value T)
+	  (setf real-expected-value nil)
 	  (setf real-expected-value expected-value))
       
       ;;producing test before-function-source

@@ -1,0 +1,17 @@
+
+((NAME . "ADD-TAGS-1") (FILE-ON-DISK . "ADD-TAGS-1.test")
+ (DESCRIPTION
+  . "Test that add tags successfully adds the additional tags 'soot' and 'newt' to a test originally defined only with the tags 'poot' and 'woot'")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (ADD-TAGS "a-test" '("soot" "newt"))
+           (GET-TAGS "a-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE "NEWT" "SOOT" "WOOT" "POOT")
+ (RUN-VALUE "NEWT" "SOOT" "WOOT" "POOT") (RUN-TIME . 0.001) (RESULT . T)
+ (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL) (BEFORE-FUNCTION-RUN-STATUS . T)
+ (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL) (AFTER-FUNCTION-RUN-STATUS . T)
+ (TYPE-OF-TEST)) 

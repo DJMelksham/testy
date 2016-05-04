@@ -1,0 +1,15 @@
+
+((NAME . "GET-DESCRIPTION-1") (FILE-ON-DISK . "GET-DESCRIPTION-1.test")
+ (DESCRIPTION
+  . "Show that we can get the description of a test referencing it by name")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :DESCRIPTION "whackadoo" :SOURCE (+ 1 1) :TAGS
+                 '("woot" "poot") :EXPECTED-VALUE 2)
+           (GET-DESCRIPTION "a-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE . "whackadoo") (RUN-VALUE) (RUN-TIME . 0.0)
+ (RESULT) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL) (BEFORE-FUNCTION-RUN-STATUS)
+ (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL) (AFTER-FUNCTION-RUN-STATUS)
+ (TYPE-OF-TEST)) 

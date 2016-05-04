@@ -1,0 +1,16 @@
+
+((NAME . "REMOVE-TAGS-1") (FILE-ON-DISK . "REMOVE-TAGS-1.test")
+ (DESCRIPTION
+  . "Testing that (remove-tags) can remove the tag 'poot' from a made up test that originally contained the tags 'poot' and 'woot'")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (REMOVE-TAGS "a-test" "poot")
+           (GET-TAGS "a-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE "WOOT") (RUN-VALUE "WOOT") (RUN-TIME . 0.0)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T) (TYPE-OF-TEST)) 
