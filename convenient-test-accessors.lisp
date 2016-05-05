@@ -11,10 +11,10 @@
 ;;; Should this get tags from a test, or should it be used to get all currently registered tags
 ;;; or both
 
-(defun get-tags (test)
+(defun get-tags (&optional (test-identifiers  (all-tests)))
   "Get a list of applicable tags from a test"
   (let ((local-hash (make-hash-table :test #'equalp))
-	(local-tests (get-tests test)))
+	(local-tests (get-tests test-identifiers)))
     (loop for test across local-tests
        do (loop for tag in (tags test)
 	     do (setf (gethash tag local-hash) T)))
@@ -32,7 +32,6 @@
      do (loop for tag in (tags test)
 	     do (hash-ext-array-insert tag test *test-tags*))))
 	     
-
 (defun remove-tags (test-identifiers tags)
   "Remove tag/tags from tests"
   (loop
@@ -172,6 +171,19 @@
 
     local-test))
 
+(defun get-names (&optional (test-identifiers (all-tests)))
+  (let* ((local-tests (get-tests test-identifiers))
+	(local-array (make-array (length local-tests))))
+
+    (loop
+       for test across local-tests
+       for i = 0 then (incf i)
+       do (if (typep test 'test)
+	      (setf (svref local-array i) (name test))
+	      (setf (svref local-array i) test)))
+    
+    local-array))
+
 (defun get-description (test)
   "Get the description of a test"
   (description (get-test test)))
@@ -188,3 +200,14 @@
   "Get the current status of a test: whether it is T (PASS) or NIL (FAILED)."
   (result (get-test test)))
 
+(defun get-results (&optional (test-identifiers (all-tests)))
+  "Get the current status of tests: whether it is T (PASS) or NIL (FAILED)"
+  (let* ((local-tests (get-tests test-identifiers))
+	 (local-array (make-array (length local-tests))))
+    
+    (loop for test across local-tests
+	 for i = 0 then (incf i)
+       do (if (typep test 'test)
+	      (setf (svref local-array i) (result test))
+	      (setf (svref local-array i) test)))
+    local-array))
