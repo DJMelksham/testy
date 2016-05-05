@@ -14,7 +14,6 @@
 (defmethod serialise (pathname (object test))
   (let ((local-pathname 
 	 (uiop:merge-pathnames* (uiop:ensure-directory-pathname pathname) (file-on-disk object))))
-    
     (with-open-file (stream local-pathname
 			    :direction :output
 			    :if-exists :supersede
@@ -36,8 +35,7 @@
 		 (cons 'BEFORE-FUNCTION-SOURCE (before-function-source object))
 		 (cons 'BEFORE-FUNCTION-RUN-STATUS (proper-output (before-function-run-status object)))
 		 (cons 'AFTER-FUNCTION-SOURCE (after-function-source object))
-		 (cons 'AFTER-FUNCTION-RUN-STATUS (proper-output (after-function-run-status object)))
-		 (cons 'TYPE-OF-TEST (type-of-test object))) stream))
+		 (cons 'AFTER-FUNCTION-RUN-STATUS (proper-output (after-function-run-status object)))) stream))
     
     local-pathname))
 
@@ -68,8 +66,7 @@
 		 :before-function-source (string=lookup 'BEFORE-FUNCTION-SOURCE a-list)
 		 :before-function-run-status (string=lookup 'BEFORE-FUNCTION-RUN-STATUS a-list)
 		 :after-function-source (string=lookup 'AFTER-FUNCTION-source a-list)
-		 :after-function-run-status (string=lookup 'AFTER-FUNCTION-RUN-STATUS a-list)
-		 :type-of-test (string=lookup 'TYPE-OF-TEST a-list)))))
+		 :after-function-run-status (string=lookup 'AFTER-FUNCTION-RUN-STATUS a-list)))))
 
 (defun load-tests (&optional (directory-path *testy-active-path*))
   (loop

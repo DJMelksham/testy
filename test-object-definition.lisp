@@ -109,13 +109,7 @@
     :initarg :after-function-run-status
     :initform nil
     :accessor after-function-run-status
-    :documentation "Determines whether after-function application raised a condition")
-   (type-of-test
-    :initarg :type-of-test
-    :initform nil
-    :type 'list
-    :accessor type-of-test
-    :documentation "A flag that may be used in the future")))
+    :documentation "Determines whether after-function application raised a condition")))
     
 (defmethod print-object ((object test) stream)
   (print-unreadable-object (object stream)
@@ -129,7 +123,6 @@
 		     (run-value run-value)
 		     (run-time run-time)
 		     (re-evaluate re-evaluate)
-		     (status status)
 		     (result result)
 		     (before-function-source before-function-source)
 		     (before-function-run-status before-function-run-status)

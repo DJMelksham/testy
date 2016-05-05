@@ -1,17 +1,22 @@
 
-((NAME . "SET-DESCRIPTION-1") (FILE-ON-DISK . "SET-DESCRIPTION-1.test")
- (DESCRIPTION
+((TESTY::NAME . "SET-DESCRIPTION-1")
+ (TESTY::FILE-ON-DISK . "SET-DESCRIPTION-1.test")
+ (TESTY::DESCRIPTION
   . "Show that we can set the description of a test referencing it by name")
- (EXPECTATION . "EQUALP") (TAGS)
- (SOURCE LAMBDA NIL
-         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
-               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
-           (TEST :NAME "a-test" :DESCRIPTION "whackadoo" :SOURCE (+ 1 1) :TAGS
-                 '("woot" "poot") :EXPECTED-VALUE 2)
-           (SET-DESCRIPTION "a-test" "That was a silly description before.")
-           (DESCRIPTION (GET-TEST "a-test"))))
- (RE-EVALUATE) (EXPECTED-VALUE . "That was a silly description before.")
- (RUN-VALUE . "That was a silly description before.") (RUN-TIME . 0.0)
- (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
- (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
- (AFTER-FUNCTION-RUN-STATUS . T) (TYPE-OF-TEST)) 
+ (TESTY::EXPECTATION . "EQUALP") (TESTY::TAGS)
+ (TESTY::SOURCE LAMBDA NIL
+                (LET ((TESTY::*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+                      (TESTY::*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+                  (TESTY:TEST :NAME "a-test" :DESCRIPTION "whackadoo" :SOURCE
+                              (+ 1 1) :TAGS '("woot" "poot") :EXPECTED-VALUE 2)
+                  (TESTY::SET-DESCRIPTION "a-test"
+                                          "That was a silly description before.")
+                  (TESTY::DESCRIPTION (TESTY:GET-TEST "a-test"))))
+ (TESTY::RE-EVALUATE)
+ (TESTY::EXPECTED-VALUE . "That was a silly description before.")
+ (TESTY::RUN-VALUE . "That was a silly description before.")
+ (TESTY::RUN-TIME . 0.001) (TESTY::RESULT . T)
+ (TESTY::BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (TESTY::BEFORE-FUNCTION-RUN-STATUS . T)
+ (TESTY::AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (TESTY::AFTER-FUNCTION-RUN-STATUS . T)) 

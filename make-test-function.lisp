@@ -23,8 +23,7 @@
 		    before-function-source
 		    before-function-run-status
 		    after-function-source
-		    after-function-run-status
-		    type-of-test)
+		    after-function-run-status)
     
     (let ((real-name nil)
 	  (real-fod nil)
@@ -38,8 +37,7 @@
 	  (real-before-function-source nil)
 	  (real-compiled-before-function-form nil)
 	  (real-after-function-source nil)
-	  (real-compiled-after-function-form nil)
-	  (real-type-of-test nil))
+	  (real-compiled-after-function-form nil))
       
       ;;producing test name
       
@@ -63,12 +61,6 @@
 	    ((and (stringp file-on-disk) (ends-with-p file-on-disk ".test"))
 	     (setf real-fod file-on-disk))
 	    (t (setf real-fod (concatenate 'string file-on-disk ".test"))))
-      
-      ;;set type-of-test
-      (if (or (null type-of-test)
-	      (eq type-of-test 'nw))
-	  (setf real-type-of-test type-of-test)
-	  (setf real-type-of-test nil))
 
       ;;producing test file description
       
@@ -130,7 +122,7 @@
       ;;producing test compiled form
       ;;assumes SBCL-esque default behaviour where everything is compiled unless otherwise
       ;;stated.  May need to be changed if this lisp code is ever made purely portable.
-      (setf real-compiled-form (nw-eval? (null real-type-of-test) real-source))
+      (setf real-compiled-form (eval real-source))
       
       ;;producing test expected value
       (if (null expected-value)
@@ -150,7 +142,7 @@
       (if (or (null real-before-function-source)
 	      (equal real-before-function-source '(lambda () nil)))
 	  (setf real-compiled-before-function-form *test-empty-function*)
-	  (setf real-compiled-before-function-form (nw-eval? (null real-type-of-test) real-before-function-source)))
+	  (setf real-compiled-before-function-form (eval real-before-function-source)))
       
       ;;producing test after-function-source
       (cond ((null after-function-source)
@@ -165,7 +157,7 @@
       (if (or (null real-after-function-source)
 	      (equal real-after-function-source '(lambda () nil)))
 	  (setf real-compiled-after-function-form *test-empty-function*)
-	  (setf real-compiled-after-function-form (nw-eval? (null real-type-of-test) real-after-function-source)))
+	  (setf real-compiled-after-function-form (eval real-after-function-source)))
       
       (register-test  (make-instance 'test
 		   :name real-name
@@ -185,5 +177,4 @@
 		   :after-function-source real-after-function-source
 		   :before-function-run-status before-function-run-status
 		   :after-function-compiled-form real-compiled-after-function-form
-		   :after-function-run-status after-function-run-status
-		   :type-of-test real-type-of-test))))
+		   :after-function-run-status after-function-run-status))))

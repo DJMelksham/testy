@@ -1,16 +1,18 @@
 
-((NAME . "SET-NAME-1") (FILE-ON-DISK . "SET-NAME-1.test")
- (DESCRIPTION
+((TESTY::NAME . "SET-NAME-1") (TESTY::FILE-ON-DISK . "SET-NAME-1.test")
+ (TESTY::DESCRIPTION
   . "Testing that set-name can successfully change the name of a registered test")
- (EXPECTATION . "EQUALP") (TAGS)
- (SOURCE LAMBDA NIL
-         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
-               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
-           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
-                 :EXPECTED-VALUE 2)
-           (SET-NAME "a-test" "another-test")
-           (GET-NAME "another-test")))
- (RE-EVALUATE) (EXPECTED-VALUE . "ANOTHER-TEST") (RUN-VALUE . "ANOTHER-TEST")
- (RUN-TIME . 0.001) (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
- (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
- (AFTER-FUNCTION-RUN-STATUS . T) (TYPE-OF-TEST)) 
+ (TESTY::EXPECTATION . "EQUALP") (TESTY::TAGS)
+ (TESTY::SOURCE LAMBDA NIL
+                (LET ((TESTY::*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+                      (TESTY::*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+                  (TESTY:TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS
+                              '("woot" "poot") :EXPECTED-VALUE 2)
+                  (TESTY::SET-NAME "a-test" "another-test")
+                  (TESTY::GET-NAME "another-test")))
+ (TESTY::RE-EVALUATE) (TESTY::EXPECTED-VALUE . "ANOTHER-TEST")
+ (TESTY::RUN-VALUE . "ANOTHER-TEST") (TESTY::RUN-TIME . 0.001)
+ (TESTY::RESULT . T) (TESTY::BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (TESTY::BEFORE-FUNCTION-RUN-STATUS . T)
+ (TESTY::AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (TESTY::AFTER-FUNCTION-RUN-STATUS . T)) 

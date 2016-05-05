@@ -16,8 +16,7 @@
 		  (expectation "EQUALP")
 		  tags
 		  before-function-source
-		  after-function-source
-		  type-of-test)
+		  after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :source ',source
@@ -25,8 +24,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-EQ (&key 
 		     name
@@ -35,8 +33,7 @@
 		     (expected-value *)
 		     tags
 		     before-function-source
-		     after-function-source
-		     type-of-test)
+		     after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQ"
@@ -44,8 +41,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test= (&key 
 		   name
@@ -54,8 +50,7 @@
 		   (expected-value *)
 		   tags
 		   before-function-source
-		   after-function-source
-		   type-of-test)
+		   after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "="
@@ -63,8 +58,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-EQL (&key 
 		      name
@@ -73,8 +67,7 @@
 		      (expected-value *)
 		      tags
 		      before-function-source
-		      after-function-source
-		      type-of-test)
+		      after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQL"
@@ -82,8 +75,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-EQUAL (&key 
 			name
@@ -92,8 +84,7 @@
 			(expected-value *)
 			tags
 			before-function-source
-			after-function-source
-			type-of-test)
+			after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQUAL"
@@ -101,8 +92,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-EQUALP (&key 
 			 name
@@ -111,8 +101,7 @@
 			 (expected-value *)
 			 tags
 			 before-function-source
-			 after-function-source
-			 type-of-test)
+			 after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "EQUALP"
@@ -120,8 +109,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-NULL (&key 
 		       name
@@ -130,8 +118,7 @@
 		       (expected-value nil)
 		       tags
 		       before-function-source
-		       after-function-source
-		       type-of-test)
+		       after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "NULL"
@@ -139,8 +126,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-NOT-NULL (&key 
 			   name
@@ -149,8 +135,7 @@
 			   (expected-value *)
 			   tags
 			   before-function-source
-			   after-function-source
-			   type-of-test)
+			   after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "NOT-NULL"
@@ -158,8 +143,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-condition (&key 
 			    name
@@ -168,8 +152,7 @@
 			    (expected-value 'condition)
 			    tags
 			    before-function-source
-			    after-function-source
-			    type-of-test)
+			    after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "CONDITION"
@@ -177,8 +160,7 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))
 
 (defmacro test-error (&key 
 			name
@@ -187,8 +169,7 @@
 			(expected-value 'error)
 			tags
 			before-function-source
-			after-function-source
-			type-of-test)
+			after-function-source)
   `(make-test :name ,name
 	      :description ,description
 	      :expectation "CONDITION"
@@ -196,5 +177,4 @@
 	      :expected-value ',expected-value
 	      :tags ,tags
 	      :before-function-source ',before-function-source
-	      :after-function-source ',after-function-source
-	      :type-of-test ,type-of-test))
+	      :after-function-source ',after-function-source))

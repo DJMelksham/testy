@@ -63,7 +63,7 @@
     (setf (result local-test) nil
 	  (run-value local-test) nil)
 
-    (setf (compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (source local-test)))))
+    (setf (compiled-form local-test) (eval (source local-test)))))
 
 (defun set-sources (test-identifiers source &optional (expected-value nil ev-supplied-p))
   (loop for test across (get-tests test-identifiers)

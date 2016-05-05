@@ -122,18 +122,18 @@
 (defun string=lookup (symbol assoc)
   (cdr (assoc symbol assoc :test #'string=)))
 
-(defun undefined-warning-p (w)
-  (let ((control (simple-condition-format-control w)))
-         (string= control "undefined ~(~A~): ~S")))
-
-(defmacro nw-eval? (conditional-clause &rest body)
-  `(if ,conditional-clause 
-		    (eval ,@body)
-		    (locally
-			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
-		      (handler-bind
-			  ((style-warning #'(lambda (w) 
-					      (when (undefined-warning-p w)
-						(invoke-restart 'muffle-warning))))
-			   (sb-int:type-warning #'muffle-warning))
-		      (eval ,@body)))))
+;(defun undefined-warning-p (w)
+; (let ((control (simple-condition-format-control w)))
+;         (string= control "undefined ~(~A~): ~S")))
+;
+;(defmacro nw-eval? (conditional-clause &rest body)
+;  `(if ,conditional-clause 
+;		    (eval ,@body)
+;		    (locally
+;			(declare  #+sbcl(sb-ext:muffle-conditions sb-int:type-warning))
+;		      (handler-bind
+;			  ((style-warning #'(lambda (w) 
+;					      (when (undefined-warning-p w)
+;						(invoke-restart 'muffle-warning))))
+;			   (sb-int:type-warning #'muffle-warning))
+;		      (eval ,@body)))))
