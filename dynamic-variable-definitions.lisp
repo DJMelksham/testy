@@ -6,14 +6,12 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Dynamic-variable-definitions.lisp
-;;;
-;;; This file establishes the general environment variables for testy operation.
+;;; This file establishes general environment variables for testy.
 ;;; No dynamic variables are explicitly exported from the testy package,
 ;;; nor were they designed for direct user interaction.
 ;;;
-;;; Their purpose is relatively straight forward
-;;; and is explained in accompanying comments.
+;;; Their purpose is relatively simple
+;;; and is explained in the accompanying comments.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -21,13 +19,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; *testy-active-name* defines the name that identifies the system that
-;; testy is currently operating on.  It's main purpose is to define
-;; default test names if the user does not supply them when
-;; creating tests.
+;; *testy-active-name* identifies the system that
+;; testy is operating on.
 ;;
-;; *testy-active-path* contains the path the appropriate test directory,
-;; used to store tests when they are serialised to disk.
+;; *testy-active-path* contains the path to the appropriate test directory,
+;; used to store tests when serialised to disk.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -36,11 +32,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; *print-verbosity* exists solely to determine how much detail is displayed
-;; in the printed forms of tests if you actually print the objects themselves.
+;; *print-verbosity* exists to determine how much detail is displayed
+;; in the printed forms of tests if you print a test object.
 ;;
 ;; Valid values are high or low, set by their respective (high-verbosity)
-;; and (low-verbosity) functions defined later.
+;; and (low-verbosity) functions defined with the test object definition later.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -48,12 +44,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; The two variables *test-names*, *test-tags* are
-;; hash tables used to store quickly accessible references to their respective
-;; members (with test-names being the one used to access tests themselves).
+;; *test-names* and *test-tags* are hash tables used to store quickly
+;; accessible references to their respective members
+;; (test-names identify tests themselves, and test-tags allow quick
+;;  lookup of groups of tests via tags)
 ;;
-;; When objects are created/destroyed properly through exported functions,
-;; each of these variables should have values automatically inserted/deleted.
+;; When tests are created/destroyed properly through exported functions,
+;; each of these variables should be automatically updated.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -63,15 +60,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; The last two variables *test-empty-function* and *expectation-table* are
-;; the most complicated instances of the dynamic variables in testy, but
-;; thankfully, they aren't very complicated at all.
+;; the most complex instances of the dynamic variables, but
+;; thankfully, they're still pretty simple.
 ;;
 ;; *test-empty-function* houses an "empty function" used internally throughout
-;; testy for quite mundane purposes, to simplify code, concepts, memory footprint
-;; and who knows maybe even run-times.
+;; testy for quite mundane purposes: to simplify code, skip compilation of
+;; functions that don't really do anything while maintaining funcall'ability,
+;; etc.
 ;;
-;; *expectation-table* contains functions used for the various
-;; types of expectations found within the tests themselves.
+;; *expectation-table* contains functions used for the
+;; types of expectations found within the tests.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

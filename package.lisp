@@ -6,10 +6,9 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Testy itself defines and creates only the testy package and imports 
-;;; symbols only from Common-Lisp.
-;;; All functions used from other packages are explicity referenced in
-;;; the source code.
+;;; Testy defines and creates only the testy package 
+;;; All functions used from other packages apart from Common Lisp or Testy
+;;; are explicity referenced in the source code.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -48,8 +47,7 @@
    #:fetch-test
    #:get-tests
    #:fetch-tests
-   #:get-tag
-   #:fetch-tag
+   #:all-tags
    #:fetch-tests-from-tags
    #:get-tests-from-tags
    #:combine-test-sequences
@@ -92,4 +90,30 @@
    #:test-NULL
    #:test-NOT-NULL
    #:test-condition
-   #:test-error))
+   #:test-error
+   #:get-tags
+   #:add-tags
+   #:remove-tags
+   #:get-source
+   #:set-source
+   #:set-sources
+   #:get-expectation
+   #:set-expectation
+   #:set-expectations
+   #:get-expected-value
+   #:set-expected-value
+   #:set-expected-values
+   #:get-before-function-source
+   #:set-before-function-source
+   #:set-before-function-sources
+   #:get-after-function-source
+   #:set-after-function-source
+   #:set-after-function-sources
+   #:get-name
+   #:set-name
+   #:get-names
+   #:get-description
+   #:set-description
+   #:get-run-value
+   #:get-result
+   #:get-results))
