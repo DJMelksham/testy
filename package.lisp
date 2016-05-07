@@ -6,43 +6,63 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Testy defines and creates only the testy package 
+;;; Testy defines and creates the TESTY package and assumes one name-space
+;;; for each system it is applied to.
+;;; 
 ;;; All functions used from other packages apart from Common Lisp or Testy
 ;;; are explicity referenced in the source code.
 ;;;
+;;; Exported symbols from Testy are grouped based upon where they are
+;;; defined in the system's source code heirachy, viewable in the asdf
+;;; system definition.
+;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Exported symbols from Testy can be broadly grouped into the following 
-;;; categories:
+;;;  INDEX
 ;;;
-;;;  - Statistics Functions: For reporting stats about tests
+;;;  1. Set an active project
 ;;;
-;;;  - Test Macros and Functions: Responsible for creating tests
+;;;  2. Set the verbosity of printed test objects
 ;;;
-;;;  - Test Runners: Functions that run sequences of tests.
+;;;  3. Retrieve individual tests and/or sets of tests
 ;;;
-;;;  - Test Array Generators: Functions that return arrays of tests,
-;;;    usually to be used to pass return values to Test Runners or
-;;;    Statistics Functions.
+;;;  4. Manage the registration of tests within Testy's internal register
 ;;;
-;;;  - Testy Environment, File and Management Functions: Deal with loading,
-;;;    serialisation, management of tests, setting active projects,
-;;;    and testy objects/variables.
+;;;  5. The make-test function: Does what it says on the box
+;;;
+;;;  6. Macros wrap around make-test to allow test production
+;;;     to be irrespondibly easy during interactive development
+;;;
+;;;  7. Control explicit loading/saving of serialised tests as
+;;;     well as their deletion
+;;;
+;;;  8. Run-test: the function responsible for individual test operation
+;;;
+;;;  9. Run-tests and run-tags: Functions responsible for running sets
+;;;     of tests or tests via specific tags
+;;;
+;;; 10. Statistics functions - report information on sequences of tests
+;;;
+;;; 11. Report and present test results in specific forms
+;;;
+;;; 12. Convenient test accessors: programatically access and alter properties
+;;;     of defined tests.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defpackage :testy
   (:use #:cl)
   (:export
+   #:set-testy-active-project
    #:load-tests
    #:load-test
    #:make-test
    #:delete-all-tests-in-dir
+   #:register-test
    #:deregister-test
    #:deregister-tests
    #:destroy-test
    #:destroy-tests
-   #:set-testy-active-project
    #:get-test
    #:fetch-test
    #:get-tests
