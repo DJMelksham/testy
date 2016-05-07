@@ -164,6 +164,7 @@
 		   :file-on-disk real-fod
 		   :description real-desc
 		   :expectation real-exp
+		   :expectation-function (gethash real-exp *expectation-table*)
 		   :re-evaluate real-re-evaluate
 		   :tags real-tags
 		   :source real-source

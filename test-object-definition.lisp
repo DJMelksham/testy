@@ -33,12 +33,18 @@
     :type 'string
     :accessor expectation
     :documentation "A string representing the expectation function that compares the value returned from running the test with what was expected to be returned if the test was to pass.")
+   (expectation-function
+    :initarg :expectation-function
+    :initform *test-empty-function*
+    :type 'function
+    :accessor expectation-function
+    :documentation "A two argument function that will actually be applied to determine whether a test expectation has been met")
    (tags
     :initarg :tags
     :initform nil
     :type 'list
     :accessor tags
-    :documentation "A list of tags applicable to the test")
+    :documentation "An array of tags applicable to the test")
    (source
     :initarg :source 
     :initform (error "A test must provide source code that defines the test")
@@ -70,6 +76,7 @@
     :initarg :run-time
     :initform 0.0
     :accessor run-time
+    :type 'float
     :documentation "The time taken for the test to complete, including before/after functions.")
    (result
     :initarg :result
