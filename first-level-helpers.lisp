@@ -45,12 +45,6 @@
 ;;;    one (defmacro) form.  Not robust as of yet, but not designed
 ;;;    for anything more than our particular use, for which it suffices.
 ;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)

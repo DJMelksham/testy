@@ -12,15 +12,26 @@
 ;;; All functions used from other packages apart from Common Lisp or Testy
 ;;; are explicity referenced in the source code.
 ;;;
-;;; Exported symbols from Testy are grouped based upon where they are
+;;; Exported symbols are grouped based upon where they are
 ;;; defined in the system's source code heirachy, viewable in the asdf
-;;; system definition.
+;;; system definition.  The astute observer will observe many functions
+;;; have synonymous names exported: that is to say, there are several functions
+;;; that do identical things, for those users, like me, who have trouble
+;;; remembering particular verbs, forms, labels, but know what it is they
+;;; want to do interactively.
+;;;
+;;; For now, although I have defined naive accessors
+;;; for every slot defined in a test object, i have chosen not to export
+;;; those functions.  Users looking for that level of access to test objects
+;;; may observe the test object definition code, but such accessors
+;;; do not provide the automatic book-keeping, validation, updating
+;;; and consistency checks provided by the exported functions.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;  INDEX
 ;;;
-;;;  1. Set an active project
+;;;  1. Set the active project
 ;;;
 ;;;  2. Set the verbosity of printed test objects
 ;;;
@@ -53,7 +64,27 @@
 (defpackage :testy
   (:use #:cl)
   (:export
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
+;;; 1. Set the active project ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
    #:set-testy-active-project
+   
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 2. Set the verbosity of printed test objects ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
+
+   #:high-verbosity
+   #:verbosity-high
+   #:low-verbosity
+   #:verbosity-low
+   #:verbosity
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 3. Retrieve individual tests and/or sets of tests ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
    #:load-tests
    #:load-test
    #:make-test
@@ -80,10 +111,6 @@
    #:failing-tests
    #:passed-tests
    #:passing-tests
-   #:high-verbosity
-   #:verbosity-high
-   #:low-verbosity
-   #:verbosity-low
    #:detail-tests
    #:print-results
    #:all-tests

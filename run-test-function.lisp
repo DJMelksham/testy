@@ -55,7 +55,7 @@
       (setf
        ;;set the internal stop time of the test run
        test-time-stop (get-internal-real-time)
-       
+       ;;run and set the code that checks the outcome of the test
        (result test) (funcall (the function (expectation-function test))
 			      (expected-value test) (run-value test)))
       
@@ -78,5 +78,5 @@
 		  (setf (after-function-run-status test) value)))))
 	    
 	    (setf (run-time test) (* (- test-time-stop test-time-start)
-				     0.001)))
+				     0.001))
       (result test)))

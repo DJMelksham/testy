@@ -6,24 +6,56 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; The following functions return arrays of tests, which can also be thought
+;;; The following functions return tests or arrays of tests, which can also be thought
 ;;; of as sets.
 ;;;
-;;; They pass sets of tests to the higher level functions:
-;;; primarily the test-running and test-statistic functions, which
-;;; then perform all their operations with that particular set.
+;;; Typically in the use of Testy, it is envisioned that you will be working with
+;;; too many tests to bother handling them individually too often,
+;;;  with the obvious exception of inspecting tests when they
+;;; they are in a failing state or you are otherwise constructing or fixing
+;;; ammending an individual test.
 ;;;
-;;; Testy may be thought of as having the "test" as the fundamental
-;;; unit, but most common operations are applied to "sets of tests".
+;;; Rather, Testy is optimised to run an entire suite of automated tests,
+;;; or subsets within that suite, quickly and repetetively.
+;;;
+;;; Sets of tests may be passed to the higher level functions:
+;;; primarily the test-running and test-statistic functions, which
+;;; perform all their operations on sets of tests.
+;;;
+;;; While the "test" is the fundamental unit of the testing framework,
+;;; common operations are applicable to "sets of tests".
 ;;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Index
 ;;;
-;;; 1. All-tests
-;;;    Returns an array containing all currently registered tests.
+;;;  1. Get-test/fetch-test
+;;;     Returns an individual test, identified either by its name or by identity
+;;;     if being passed an actual test object.
 ;;;
-;;; 2. 
+;;;  2. All-tests
+;;;     Returns an array containing all currently registered tests.
+;;;
+;;;  3. All-tags
+;;;     Retuns a list of all currently registered tags.
+;;;
+;;;  4. Get-tests/fetch-tests
+;;;     Returns an array of tests when fed a sequence of names
+;;;
+;;;  5. Get-tests-from-tags/Fetch-tests-from-tags
+;;;     
+;;;
+;;;  6. Combine-test-sequences
+;;;
+;;;  7. Tests-if
+;;;
+;;;  8. Tests-if-not
+;;;
+;;;  9. Failed-tests/Failing-tests
+;;;
+;;; 10. Passed-tests/Passing-tests
+;;;
+;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
@@ -56,7 +88,7 @@
 	    (typep test-identifier 'symbol))
 	(setf result (make-array 1 :initial-element (get-test test-identifier)))
 	(setf result (map 'vector #'get-test test-identifier)))
-    (remove-duplicates result :test #'eq)))
+    (remove nil (remove-duplicates result :test #'eq) :test #'eq)))
 
 (defun fetch-tests-from-tags (tag-identifiers)
   (let ((result (loop for tags in (tag-cond tag-identifiers)
