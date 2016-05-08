@@ -6,33 +6,43 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; INDEX
 ;;;
+;;; These functions are responsible for loading, saving, and deleting tests.
+;;; 
+;;; 1. Saving a test writes a representation of the test out to a directory
+;;; on disk, essentially as a serialised associated list in a format essentially
+;;; equivalent to the internal structure of a test object.
 ;;;
+;;; 2. Loading a test reads serialised test-objects from disk back into the
+;;; lisp image (registering the test in Testy's dynamic variables as it does so).
 ;;;
+;;; 3. Destroying a test combines the actions of de-registering a test from the
+;;; the Testy dynamic variables, as well as deleting the default serialised 
+;;; representatin of the test from its location on disk.
 ;;;
+;;; 4. Two last functions do exactly what their name says: delete-all-tests-in-dir,
+;;; and delete-test-from-disk.  The first deletes all files with a .test
+;;; extension from a directory.  The second deletes individual test
+;;; serialised objects from directories. 
 ;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
-;;;
+;;; Many of these functions have default arguments assuming test has an active
+;;; project established, which then allows directories and file names to be
+;;; established for tests automatically.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 1. a) Serialise a test object out to disk ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defgeneric serialise (pathname object)
   (:documentation "Serialise the given object to disk"))
 
 (defmethod serialise (pathname (object test))
+  "Write a test object to a .test representation on disk"
   (let ((local-pathname 
 	 (uiop:merge-pathnames* (uiop:ensure-directory-pathname pathname) (file-on-disk object))))
     (with-open-file (stream local-pathname
@@ -60,14 +70,24 @@
     
     local-pathname))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 1. b) Serialise all tests in an array of tests out to a directory ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun serialise-tests (&optional (directory-path *testy-active-path*)  (test-sequence (all-tests)))
+  "Write all tests in a test-sequence out to .test files in a directory"
   (loop
      for i = 0 then (incf i)
      for test across test-sequence
      do (serialise directory-path test)
        finally (return i)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 2. a) Load a serialised test object into the lisp image ; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun load-test (pathname)
+  "Load an individual test from a .test file into the lisp image"
   (with-open-file (stream pathname
 			  :direction :input
 			  :if-does-not-exist :error)
@@ -89,14 +109,24 @@
 		 :after-function-source (string=lookup 'AFTER-FUNCTION-source a-list)
 		 :after-function-run-status (string=lookup 'AFTER-FUNCTION-RUN-STATUS a-list)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 2. b) Perform the load operation on a series of tests in a directory ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun load-tests (&optional (directory-path *testy-active-path*))
+  "Load all .test objects in a directory into the current lisp image"
   (loop
      for i = 0 then (incf i)
      for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
      do (load-test test-path)
      finally (return i)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 3. a) Destroy (de-register and delete from disk) a test ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun destroy-test (identifier &optional (path *testy-active-path*))
+  "Delete and de-register a test"
   (let ((test (get-test identifier))
 	(local-path (uiop:ensure-directory-pathname path)))
 
@@ -110,19 +140,34 @@
 
     T))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 3. b) Destroy a series of tests contained in an array of tests ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun destroy-tests (test-sequence &optional (path *testy-active-path*))
+  "Delete and de-register a series of tests"
   (loop for i = 0 then (incf i)
      for test across test-sequence	 
 	   do (destroy-test test path)
 	finally (return i)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4. a) Delete all files in a directory with a .test extension ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun delete-all-tests-in-dir (&optional (directory-path *testy-active-path*))
+  "Delete all files in a directory with a .test extension"
   (loop
      for i = 0 then (incf i)
      for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
      do (delete-file test-path)
        finally (return i)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4. b) Delete a test from disk ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun delete-test-from-disk (test-identifier &optional (directory-path *testy-active-path*))
+  "Delete a specific .test file from a directory on disk"
   (let ((test (get-test test-identifier)))
     (delete-file (uiop:merge-pathnames* (uiop:ensure-directory-pathname directory-path) (file-on-disk test)))))

@@ -167,8 +167,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun-with-synonyms (failed-tests failing-tests)
-    "Return an array of all tests where the result is eq nil"
     (&optional (test-sequence (all-tests)))
+  "Return an array of all tests where the result is eq nil"
   (tests-if (lambda (x) (equal (result x) nil)) test-sequence))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -176,6 +176,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun-with-synonyms (passed-tests passing-tests)
-    "Return an array of all tests where the result is eq T"
     (&optional (test-sequence (all-tests)))
+  "Return an array of all tests where the result is eq T"
   (tests-if (lambda (x) (equal (result x) t)) test-sequence))

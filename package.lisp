@@ -37,24 +37,26 @@
 ;;;
 ;;;  3. Retrieve individual tests and/or sets of tests
 ;;;
-;;;  4. The make-test function: Does what it says on the box
+;;;  4. Test registration and de-registration
 ;;;
-;;;  5. Macros to wrap around make-test to allow test production
+;;;  5. The make-test function: Does what it says on the box
+;;;
+;;;  6. Macros to wrap around make-test to allow test production
 ;;;     to be irresponsibly easy during interactive development
 ;;;
-;;;  6. Control explicit loading/saving of serialised tests as
+;;;  7. Control explicit loading/saving of serialised tests as
 ;;;     well as their deletion
 ;;;
-;;;  7. Run-test: the function responsible for individual test operation
+;;;  8. Run-test: the function responsible for individual test operation
 ;;;
-;;;  8. Run-tests and run-tags: Functions responsible for running sets
+;;;  9. Run-tests and run-tags: Functions responsible for running sets
 ;;;     of tests or tests via specific tags
 ;;;
-;;;  9. Statistics functions - report information on sequences of tests
+;;; 10. Statistics functions - report information on sequences of tests
 ;;;
-;;; 10. Report and present test results in specific forms
+;;; 11. Report and present test results in specific forms
 ;;;
-;;; 11. Convenient test accessors: programatically access and alter properties
+;;; 12. Convenient test accessors: programatically access and alter properties
 ;;;     of defined tests.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,14 +101,22 @@
    #:passed-tests
    #:passing-tests
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4. Test registration and de-registration ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
+   #:register-test
+   #:deregister-test
+   #:deregister-tests
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;  4. The make-test function: Does what it says on the box ;
+;;; 5. The make-test function: Does what it says on the box ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    
    #:make-test
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 5. Macros responsible for interactive test authorship ;
+;;; 6. Macros responsible for interactive test authorship ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
    #:test

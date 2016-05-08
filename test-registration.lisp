@@ -12,19 +12,17 @@
 ;;; are registered upon creation/loading and deregistered upon
 ;;; deletion/active-project changes by calling the functions defined
 ;;; in this file.
-;;; 
-;;; Unless you have forked Testy and are implementing your own testing system
-;;; and paradigm on top of Testy's internal workings,
-;;; or fixing things up when they have gone wrong, there should be little
-;;; reason to call these functions directly.
 ;;;
-;;; If you did remove tests from Testy's dynamic variables
+;;; Currently Testy registers tests upon creation by make-test.
+;;;
+;;; If you remove tests from Testy's dynamic variables
 ;;; by de-registering them, they effectively become invisible to many
-;;; Testy higher-level functions coming up later in the source code, so don't
-;;; do it unless you know what you're doing.
+;;; Testy higher-level functions coming up later in the source code, so as
+;;; a general rule, don't de-register a test unless you're done with it 
+;;; and/or you have it saved on disk.
 ;;;
 ;;; On the other hand, if you wanted to extend what happens upon registration/
-;;; removal of tests, this is a great place to do it.
+;;; removal of tests, this would be a great place to do it.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
