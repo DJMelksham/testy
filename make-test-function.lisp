@@ -5,6 +5,31 @@
 ;;; Written using Ubuntu 16.04, SBCL 1.3.1
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; The make-test function is your fundamental test creating function.
+;;; If you wish to define test objects programatically or in source code,
+;;; the make-test function is likely your place to go.
+;;;
+;;; My preference, however is to create tests interactively at the REPL
+;;; during development, not as separate .lisp files or at run-time.
+;;; While observances I have made of the first phenomenon lead me to believe
+;;; it is slow and flow-breaking, and observances I have made of the second
+;;; lead me to believe many automated tests result in many superfluous
+;;; tests of questionable structure and value, I accept there are valid
+;;; applications of both techniques.
+;;;
+;;; Regardless, it is possible, maybe even preferable, to use
+;;; Testy without ever explicitly calling the make-test function.
+;;; 
+;;; But the macros responsible for test authorship, defined in later code,
+;;; are merely convenient wrappers around make-test, and carry the restriction
+;;; of establishing tests based on input at compile time, and so cannot cover
+;;; every conceivable use case.
+;;;
+;;; Arguments do exist for taking out some of the monolithic logic contained
+;;; within make-tests and putting them into their own functions in the future...
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
 

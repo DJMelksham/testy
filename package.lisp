@@ -6,25 +6,25 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Testy defines and creates the TESTY package and assumes one name-space
-;;; for each system it is applied to.
+;;; Testy defines and creates the TESTY package.
 ;;; 
 ;;; All functions used from other packages apart from Common Lisp or Testy
 ;;; are explicity referenced in the source code.
 ;;;
 ;;; Exported symbols are grouped based upon where they are
-;;; defined in the system's source code heirachy, viewable in the asdf
-;;; system definition.  The astute observer will observe many functions
-;;; have synonymous names exported: that is to say, there are several functions
-;;; that do identical things, for those users, like me, who have trouble
-;;; remembering particular verbs, forms, labels, but know what it is they
-;;; want to do interactively.
+;;; defined in the system's code heirachy, which is viewable in the asdf
+;;; system definition.  The astute observer will notice many functions
+;;; have synonymous names exported: that is to say, several functions
+;;; do identical things.  This is for those users, like me, who have trouble
+;;; remembering particular verb/subject orders or labels, but know what they
+;;; want.  Since each function name explicitly says what it is doing,
+;;; this shouldn't come at any cost as to how expressive or communicable
+;;; code actually is.
 ;;;
-;;; For now, although I have defined naive accessors
-;;; for every slot defined in a test object, i have chosen not to export
-;;; those functions.  Users looking for that level of access to test objects
-;;; may observe the test object definition code, but such accessors
-;;; do not provide the automatic book-keeping, validation, updating
+;;; Although I have defined naive accessors for every slot in a test object,
+;;; I have chosen not to export them. Users looking for that level of access
+;;; may study the test object definition code, but the naive accessors
+;;; do not provide automatic book-keeping, convenience, validation, updating
 ;;; and consistency checks provided by the exported functions.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -37,26 +37,24 @@
 ;;;
 ;;;  3. Retrieve individual tests and/or sets of tests
 ;;;
-;;;  4. Manage the registration of tests within Testy's internal register
+;;;  4. The make-test function: Does what it says on the box
 ;;;
-;;;  5. The make-test function: Does what it says on the box
+;;;  5. Macros to wrap around make-test to allow test production
+;;;     to be irresponsibly easy during interactive development
 ;;;
-;;;  6. Macros wrap around make-test to allow test production
-;;;     to be irrespondibly easy during interactive development
-;;;
-;;;  7. Control explicit loading/saving of serialised tests as
+;;;  6. Control explicit loading/saving of serialised tests as
 ;;;     well as their deletion
 ;;;
-;;;  8. Run-test: the function responsible for individual test operation
+;;;  7. Run-test: the function responsible for individual test operation
 ;;;
-;;;  9. Run-tests and run-tags: Functions responsible for running sets
+;;;  8. Run-tests and run-tags: Functions responsible for running sets
 ;;;     of tests or tests via specific tags
 ;;;
-;;; 10. Statistics functions - report information on sequences of tests
+;;;  9. Statistics functions - report information on sequences of tests
 ;;;
-;;; 11. Report and present test results in specific forms
+;;; 10. Report and present test results in specific forms
 ;;;
-;;; 12. Convenient test accessors: programatically access and alter properties
+;;; 11. Convenient test accessors: programatically access and alter properties
 ;;;     of defined tests.
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -84,38 +82,77 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 3. Retrieve individual tests and/or sets of tests ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   
-   #:load-tests
-   #:load-test
-   #:make-test
-   #:delete-all-tests-in-dir
-   #:register-test
-   #:deregister-test
-   #:deregister-tests
-   #:destroy-test
-   #:destroy-tests
+
    #:get-test
    #:fetch-test
+   #:all-tests
+   #:all-tags
    #:get-tests
    #:fetch-tests
-   #:all-tags
    #:fetch-tests-from-tags
    #:get-tests-from-tags
    #:combine-test-sequences
-   #:run-test
-   #:run-tests
-   #:run-tags
    #:tests-if
    #:tests-if-not
    #:failed-tests
    #:failing-tests
    #:passed-tests
    #:passing-tests
-   #:detail-tests
-   #:print-results
-   #:all-tests
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;  4. The make-test function: Does what it says on the box ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
+   #:make-test
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 5. Macros responsible for interactive test authorship ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+   #:test
+   #:test-EQ
+   #:test=
+   #:test-EQL
+   #:test-EQUAL
+   #:test-EQUALP
+   #:test-NULL
+   #:test-NOT-NULL
+   #:test-condition
+   #:test-error
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 6. Load (read from disk, create and register test objects), ;
+;;;    serialise (save test objects to disk), and               ;
+;;;    delete (remove from disk and remove from Testy registry) ;
+;;;    tests.                                                   ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
    #:serialise
    #:serialise-tests
+   #:load-test
+   #:load-tests
+   #:destroy-test
+   #:destroy-tests
+   #:delete-all-tests-in-dir
+   #:delete-test-from-disk
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 7. Run-test: The fundamental test running function ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      
+   #:run-test
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 8. Run sets of tests and tests categorised by tags ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
+   #:run-tests
+   #:run-tags
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
+;;; 9. Statistics functions - produce summary information about sets of tests ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      
    #:stat-number-tests
    #:stat-number-passed
    #:stat-number-failed
@@ -127,17 +164,20 @@
    #:stat-number-conditions
    #:stat-number-errors
    #:stats
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 10. Additional reporting and presentation functions ;   
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+   #:detail-tests
+   #:print-results
    #:print-stats
-   #:test
-   #:test-EQ
-   #:test=
-   #:test-EQL
-   #:test-EQUAL
-   #:test-EQUALP
-   #:test-NULL
-   #:test-NOT-NULL
-   #:test-condition
-   #:test-error
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 11. Convenient test accessors: programatically access and alter properties ;
+;;;     of defined tests.                                                      ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
    #:get-tags
    #:add-tags
    #:remove-tags
