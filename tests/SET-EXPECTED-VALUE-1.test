@@ -1,21 +1,18 @@
 
-((TESTY::NAME . "SET-EXPECTED-VALUE-1")
- (TESTY::FILE-ON-DISK . "SET-EXPECTED-VALUE-1.test")
- (TESTY::DESCRIPTION
+((NAME . "SET-EXPECTED-VALUE-1") (FILE-ON-DISK . "SET-EXPECTED-VALUE-1.test")
+ (DESCRIPTION
   . "Testing whether we can set the expected value of a test referenced by name via the (set-expected-value) function.  The original value when the test was created was 2, and now it should be 3 if the setting worked.")
- (TESTY::EXPECTATION . "=") (TESTY::TAGS)
- (TESTY::SOURCE LAMBDA NIL
-                (LET ((TESTY::*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
-                      (TESTY::*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
-                  (TESTY:TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS
-                              '("woot" "poot") :EXPECTED-VALUE 2)
-                  (TESTY:TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS
-                              '("toot" "poot") :EXPECTED-VALUE 2)
-                  (TESTY::SET-EXPECTED-VALUE "a-test" 3)
-                  (TESTY::EXPECTED-VALUE (TESTY:GET-TEST "a-test"))))
- (TESTY::RE-EVALUATE) (TESTY::EXPECTED-VALUE . 3) (TESTY::RUN-VALUE . 3)
- (TESTY::RUN-TIME . 0.001) (TESTY::RESULT . T)
- (TESTY::BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
- (TESTY::BEFORE-FUNCTION-RUN-STATUS . T)
- (TESTY::AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
- (TESTY::AFTER-FUNCTION-RUN-STATUS . T)) 
+ (EXPECTATION . "=") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS '("toot" "poot")
+                 :EXPECTED-VALUE 2)
+           (SET-EXPECTED-VALUE "a-test" 3)
+           (EXPECTED-VALUE (GET-TEST "a-test"))))
+ (RE-EVALUATE) (EXPECTED-VALUE . 3) (RUN-VALUE . 3) (RUN-TIME . 0.001)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

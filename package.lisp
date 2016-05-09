@@ -180,9 +180,9 @@
 ;;; 10. Additional reporting and presentation functions ;   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+   #:print-stats
    #:detail-tests
    #:print-results
-   #:print-stats
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 11. Convenient test accessors: programatically access and alter properties ;

@@ -5,13 +5,19 @@
 ;;; Written using Ubuntu 16.04, SBCL 1.3.1
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; The statistic functions report basic information about arrays of tests.
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
 
 (defun stat-number-tests (&optional (test-sequence (all-tests)))
+  "Return the number of tests in an array of tests"
   (length test-sequence))
 
 (defun stat-number-passed (&optional (test-sequence (all-tests)))
+  "Return the number of passed tests in an array of tests"
   (let ((passed 0)
 	(failed 0))
     (loop for test across test-sequence
@@ -21,6 +27,7 @@
     (values passed failed)))
 
 (defun stat-number-failed (&optional (test-sequence (all-tests)))
+  "Return the number of failed tests within an array of tests"
   (let ((passed 0)
 	(failed 0))
     (loop for test across test-sequence
@@ -29,8 +36,8 @@
 		(incf failed)))
     (values failed passed)))
 
-
 (defun stat-perc-passed (&optional (test-sequence (all-tests)))
+  "Return the percentage of passed tests in an array of tests"
   (multiple-value-bind (num-passed num-failed)
     (stat-number-passed test-sequence)
     (cond ((and (zerop num-passed)
@@ -44,6 +51,7 @@
 		     (float (* 100 (/ num-failed (+ num-passed num-failed)))))))))
 
 (defun stat-ratio-passed (&optional (test-sequence (all-tests)))
+  "Returns the ratio of passed tests in an array of tests"
   (multiple-value-bind (num-passed num-failed)
       (stat-number-passed test-sequence)
     (cond ((and (zerop num-passed)
@@ -57,6 +65,7 @@
 		     (/ num-failed (+ num-passed num-failed)))))))
 
 (defun stat-perc-failed (&optional (test-sequence (all-tests)))
+  "Returns the percentage of failed tests in an array of tests"
   (multiple-value-bind (num-passed num-failed)
     (stat-number-passed test-sequence)
     (cond ((and (zerop num-passed)
@@ -70,6 +79,7 @@
 		     (float (* 100 (/ num-passed (+ num-passed num-failed)))))))))
 
 (defun stat-ratio-failed (&optional (test-sequence (all-tests)))
+  "Returns the ratio of failed tests in an array of tests"
   (multiple-value-bind (num-passed num-failed)
       (stat-number-passed test-sequence)
     (cond ((and (zerop num-passed)
@@ -83,11 +93,12 @@
 		     (/ num-passed (+ num-passed num-failed)))))))
 
 (defun stat-total-run-time (&optional (test-sequence (all-tests)))
-  "Approximate total run time of tested code (not how long it takes to run the tests themselves)"
+  "Approximate total run time of the main test code (not how long it takes to run the tests themselves: attempts to ignore testing overhead)"
   (loop for test across test-sequence
      sum (run-time test)))
 
 (defun stat-number-conditions (&optional (test-sequence (all-tests)))
+  "Return the number of conditions in an array of tests"
   (let ((conditions 0)
 	(non-conditions 0))
     (loop for test across test-sequence
@@ -100,6 +111,7 @@
     (values conditions non-conditions)))
 
 (defun stat-number-errors (&optional (test-sequence (all-tests)))
+  "Return the number of error conditions raised by an array of tests"
   (let ((conditions 0)
 	(non-conditions 0))
     (loop for test across test-sequence
@@ -111,6 +123,7 @@
     (values conditions non-conditions)))
 
 (defun stats (&optional (test-sequence (all-tests)))
+  "Returns a list with multiple statistics defined therein.  Primarily passed to reporter functions."
  (let ((num-tests 0)
        (num-passed 0)
        (num-failed 0)

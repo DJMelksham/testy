@@ -1,17 +1,15 @@
 
-((TESTY::NAME . "MAKE-TEST-2") (TESTY::FILE-ON-DISK . "MAKE-TEST-2.test")
- (TESTY::DESCRIPTION
+((NAME . "MAKE-TEST-2") (FILE-ON-DISK . "MAKE-TEST-2.test")
+ (DESCRIPTION
   . "Verifies that the object made by the make-test function is in fact an object of type TEST")
- (TESTY::EXPECTATION . "EQ") (TESTY::TAGS)
- (TESTY::SOURCE LAMBDA NIL
-                (LET ((TESTY::*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
-                  (TESTY:MAKE-TEST :NAME "A-test-name" :DESCRIPTION
-                                   "This test test has a description" :SOURCE
-                                   '(+ 1 1) :EXPECTED-VALUE 2)
-                  (TYPE-OF (GETHASH "A-test-name" TESTY::*TEST-NAMES*))))
- (TESTY::RE-EVALUATE) (TESTY::EXPECTED-VALUE . TESTY:TEST)
- (TESTY::RUN-VALUE . TESTY:TEST) (TESTY::RUN-TIME . 0.0) (TESTY::RESULT . T)
- (TESTY::BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
- (TESTY::BEFORE-FUNCTION-RUN-STATUS . T)
- (TESTY::AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
- (TESTY::AFTER-FUNCTION-RUN-STATUS . T)) 
+ (EXPECTATION . "EQ") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (MAKE-TEST :NAME "A-test-name" :DESCRIPTION
+                      "This test test has a description" :SOURCE '(+ 1 1)
+                      :EXPECTED-VALUE 2)
+           (TYPE-OF (GETHASH "A-test-name" *TEST-NAMES*))))
+ (RE-EVALUATE) (EXPECTED-VALUE . TEST) (RUN-VALUE . TEST) (RUN-TIME . 0.0)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

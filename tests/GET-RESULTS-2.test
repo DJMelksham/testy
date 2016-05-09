@@ -1,20 +1,18 @@
 
-((TESTY::NAME . "GET-RESULTS-2") (TESTY::FILE-ON-DISK . "GET-RESULTS-2.test")
- (TESTY::DESCRIPTION
+((NAME . "GET-RESULTS-2") (FILE-ON-DISK . "GET-RESULTS-2.test")
+ (DESCRIPTION
   . "testing that the (get-results) function supplied with one argument successfully returns the correct result (two passes) of two tests that were defined")
- (TESTY::EXPECTATION . "EQUALP") (TESTY::TAGS)
- (TESTY::SOURCE LAMBDA NIL
-                (LET ((TESTY::*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
-                      (TESTY::*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
-                  (TESTY:TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS
-                              '("woot" "poot") :EXPECTED-VALUE 2)
-                  (TESTY:TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS
-                              '("toot" "poot") :EXPECTED-VALUE 2)
-                  (TESTY:RUN-TESTS)
-                  (TESTY::GET-RESULTS #("a-test" "another-test"))))
- (TESTY::RE-EVALUATE) (TESTY::EXPECTED-VALUE . #(T T))
- (TESTY::RUN-VALUE . #(T T)) (TESTY::RUN-TIME . 0.001) (TESTY::RESULT . T)
- (TESTY::BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
- (TESTY::BEFORE-FUNCTION-RUN-STATUS . T)
- (TESTY::AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
- (TESTY::AFTER-FUNCTION-RUN-STATUS . T)) 
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS '("toot" "poot")
+                 :EXPECTED-VALUE 2)
+           (RUN-TESTS)
+           (GET-RESULTS #("a-test" "another-test"))))
+ (RE-EVALUATE) (EXPECTED-VALUE . #(T T)) (RUN-VALUE . #(T T))
+ (RUN-TIME . 0.002) (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

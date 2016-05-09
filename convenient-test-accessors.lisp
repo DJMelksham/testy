@@ -5,6 +5,20 @@
 ;;; Written using Ubuntu 16.04, SBCL 1.3.1
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; These functions provide better access than the CLOS low level defined
+;;; accessors: they provide housekeeping, error-checking, and update other
+;;; associated state when certain slots of test objects are changed.
+;;;
+;;; In addition, setter functions that operate on a sequence of tests allow
+;;; mapping of certain properties across a multiple tests at a time, allowing
+;;; changes to be easily conveyed across several tests without the need
+;;; for other explicit macros, fixtures, or factories, keeping the rule of
+;;; "Don't repeat yourself", and allowing the proper test designer to maintain
+;;; each test as a perfectly self contained unit.
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (in-package :testy)
 

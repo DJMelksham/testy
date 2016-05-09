@@ -5,10 +5,19 @@
 ;;; Written using Ubuntu 16.04, SBCL 1.3.1
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Not currently the cleanest source file, but tabular data via the format
+;;; function was never my strong suit.  I may clean it up in the future.
+;;;
+;;; These functions present stat information in a more structured and readable
+;;; format.
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
 
 (defun print-stats (&optional (test-identifiers (all-tests)) (stream t))
+  "Print a table of summary statistics about an array of tests"
   (let* ((stat-results (stats test-identifiers))
 	 (seconds (nth 9 stat-results)))
 
@@ -44,12 +53,13 @@
     T))
 
 (defun detail-tests (test-sequence)
+  "Ensures high verbosity information is printed for an array of tests"
   (let ((*print-verbosity* 'high))
     (loop for tests across test-sequence
 	 do (print tests))))
 
 (defun print-results (&optional (test-sequence (all-tests)) (stream t))
-  
+  "Prints dots for each passing test, and the name of any failing tests on their own lines."
     (loop 
        for test across test-sequence
        for result = (result test) then (result test)

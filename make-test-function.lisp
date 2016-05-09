@@ -13,7 +13,7 @@
 ;;;
 ;;; If you wish to create tests programatically or in source code, there is a
 ;;; good chance that make-test is the function for you, or if you want to get
-;;; so level as to not use Testy's higher level capabilities, then maybe you
+;;; so low level as to not use Testy's higher level capabilities, then maybe you
 ;;; want to fiddle around with create-test-object.
 ;;;
 ;;; My preference, however is to create tests interactively at the REPL
@@ -26,8 +26,8 @@
 ;;;
 ;;; Regardless, it is possible, maybe even preferable, to use
 ;;; Testy without ever explicitly calling the make-test function, and
-;;; certainly possible without explicitly calling the low-level
-;;; create-test-object.
+;;; certainly without explicitly calling the low-level
+;;; create-test-object directly.
 ;;; 
 ;;; But the macros responsible for test authorship, defined in later code,
 ;;; are merely convenient wrappers around make-test, and carry the restriction
@@ -247,4 +247,4 @@
 		   :before-function-source before-function-source
 		   :after-function-source after-function-source
 		   :before-function-run-status before-function-run-status
-		   :after-function-run-status after-function-run-status))))
+		   :after-function-run-status after-function-run-status)))
