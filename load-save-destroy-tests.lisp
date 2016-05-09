@@ -10,23 +10,25 @@
 ;;;
 ;;; These functions are responsible for loading, saving, and deleting tests.
 ;;; 
-;;; 1. Saving a test writes a representation of the test out to a directory
-;;; on disk, essentially as a serialised associated list in a format essentially
-;;; equivalent to the internal structure of a test object.
+;;; 1. Serialising or saving a test writes a representation of the test out to
+;;; a directory, as a serialised associated list in a format
+;;; equivalent enough to the internal structure of a test object as to reproduce
+;;; that test object upon demand.
 ;;;
 ;;; 2. Loading a test reads serialised test-objects from disk back into the
 ;;; lisp image (registering the test in Testy's dynamic variables as it does so).
 ;;;
 ;;; 3. Destroying a test combines the actions of de-registering a test from the
-;;; the Testy dynamic variables, as well as deleting the default serialised 
-;;; representatin of the test from its location on disk.
+;;; the Testy dynamic variables, as well as deleting the serialised 
+;;; representation from its location on disk (assuming it is easily found
+;;; and we are working in the confines of Testy's assumed workflow).
 ;;;
 ;;; 4. Two last functions do exactly what their name says: delete-all-tests-in-dir,
-;;; and delete-test-from-disk.  The first deletes all files with a .test
-;;; extension from a directory.  The second deletes individual test
+;;; and delete-test-from-disk.  The first deletes all files with a ".test"
+;;; extension from a directory.  The second deletes individual .test
 ;;; serialised objects from directories. 
 ;;;
-;;; Many of these functions have default arguments assuming test has an active
+;;; Many of these functions have default arguments assuming Testy has an active
 ;;; project established, which then allows directories and file names to be
 ;;; established for tests automatically.
 ;;;
@@ -49,38 +51,41 @@
 			    :direction :output
 			    :if-exists :supersede
 			    :if-does-not-exist :create)
-    (print (list (cons 'NAME (name object))
-		 (cons 'FILE-ON-DISK (concatenate 'string 
-						  (pathname-name local-pathname)
-						  "."
-						  (pathname-type local-pathname)))
-		 (cons 'DESCRIPTION (description object))
-		 (cons 'EXPECTATION (expectation object))
-		 (cons 'TAGS (tags object))
-		 (cons 'SOURCE (source object))
-		 (cons 'RE-EVALUATE (re-evaluate object))
-		 (cons 'EXPECTED-VALUE (expected-value object))
-		 (cons 'RUN-VALUE (proper-output (run-value object)))
-		 (cons 'RUN-TIME (run-time object))
-		 (cons 'RESULT (result object))
-		 (cons 'BEFORE-FUNCTION-SOURCE (before-function-source object))
-		 (cons 'BEFORE-FUNCTION-RUN-STATUS (proper-output (before-function-run-status object)))
-		 (cons 'AFTER-FUNCTION-SOURCE (after-function-source object))
-		 (cons 'AFTER-FUNCTION-RUN-STATUS (proper-output (after-function-run-status object)))) stream))
+      (print
+       (list (cons 'NAME (name object))
+	     (cons 'FILE-ON-DISK (concatenate 'string 
+					      (pathname-name local-pathname)
+					      "."
+					      (pathname-type local-pathname)))
+	     (cons 'DESCRIPTION (description object))
+	     (cons 'EXPECTATION (expectation object))
+	     (cons 'TAGS (tags object))
+	     (cons 'SOURCE (source object))
+	     (cons 'RE-EVALUATE (re-evaluate object))
+	     (cons 'EXPECTED-VALUE (expected-value object))
+	     (cons 'RUN-VALUE (proper-output (run-value object)))
+	     (cons 'RUN-TIME (run-time object))
+	     (cons 'RESULT (result object))
+	     (cons 'BEFORE-FUNCTION-SOURCE (before-function-source object))
+	     (cons 'BEFORE-FUNCTION-RUN-STATUS (proper-output (before-function-run-status object)))
+	     (cons 'AFTER-FUNCTION-SOURCE (after-function-source object))
+	     (cons 'AFTER-FUNCTION-RUN-STATUS (proper-output (after-function-run-status object)))) stream))
     
     local-pathname))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 1. b) Serialise all tests in an array of tests out to a directory ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 1. b) Serialise all tests in an array out to a directory ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun serialise-tests (&optional (directory-path *testy-active-path*)  (test-sequence (all-tests)))
+(defun serialise-tests (&optional
+			  (directory-path *testy-active-path*)
+			  (test-sequence (all-tests)))
   "Write all tests in a test-sequence out to .test files in a directory"
   (loop
      for i = 0 then (incf i)
      for test across test-sequence
      do (serialise directory-path test)
-       finally (return i)))
+     finally (return i)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 2. a) Load a serialised test object into the lisp image ; 
@@ -97,7 +102,7 @@
 		 :file-on-disk (string=lookup 'FILE-ON-DISK a-list)
 		 :description (string=lookup 'DESCRIPTION a-list)
 		 :expectation (string=lookup 'EXPECTATION a-list)
-		 :tags (string=lookup  'TAGS a-list)
+		 :tags (string=lookup 'TAGS a-list)
 		 :re-evaluate (string=lookup 'RE-EVALUATE a-list)
 		 :source (string=lookup 'SOURCE a-list)
 		 :expected-value (string=lookup 'EXPECTED-VALUE a-list)

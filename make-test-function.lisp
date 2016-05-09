@@ -6,51 +6,61 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; The make-test function is your fundamental test creating function.
-;;; If you wish to define test objects programatically or in source code,
-;;; the make-test function is likely your place to go.
+;;; Create-test-object is a low-level fundamental test creating function.
+;;;
+;;; Make-test is a thin wrapper around create test that combines test-object
+;;; creation and test registration in Testy.
+;;;
+;;; If you wish to create tests programatically or in source code, there is a
+;;; good chance that make-test is the function for you, or if you want to get
+;;; so level as to not use Testy's higher level capabilities, then maybe you
+;;; want to fiddle around with create-test-object.
 ;;;
 ;;; My preference, however is to create tests interactively at the REPL
 ;;; during development, not as separate .lisp files or at run-time.
-;;; While observances I have made of the first phenomenon lead me to believe
-;;; it is slow and flow-breaking, and observances I have made of the second
-;;; lead me to believe many automated tests result in many superfluous
-;;; tests of questionable structure and value, I accept there are valid
+;;; Observances of the first phenomenon lead me to believe
+;;; it is slow and flow-breaking, and observances of the second
+;;; lead me to believe many automated tests often result in superfluous
+;;; tests of questionable structure and value, though I accept there are valid
 ;;; applications of both techniques.
 ;;;
 ;;; Regardless, it is possible, maybe even preferable, to use
-;;; Testy without ever explicitly calling the make-test function.
+;;; Testy without ever explicitly calling the make-test function, and
+;;; certainly possible without explicitly calling the low-level
+;;; create-test-object.
 ;;; 
 ;;; But the macros responsible for test authorship, defined in later code,
 ;;; are merely convenient wrappers around make-test, and carry the restriction
-;;; of establishing tests based on input at compile time, and so cannot cover
+;;; of establishing tests based on input at compile time, and automatic
+;;; Testy assumptions and integration, and so cannot cover
 ;;; every conceivable use case.
 ;;;
 ;;; Arguments do exist for taking out some of the monolithic logic contained
-;;; within make-tests and putting them into their own functions in the future...
+;;; within create-test-object and putting them into their own functions in
+;;; the future...but right now I am not sure of the merits/design of doing so...
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :testy)
 
-(defun make-test (&key 
-		    name
-		    file-on-disk
-		    description
-		    expectation
-		    tags
-		    re-evaluate
-		    source
-		    expected-value
-		    run-value
-		    (run-time 0.0)
-		    result
-		    before-function-source
-		    before-function-run-status
-		    after-function-source
-		    after-function-run-status)
-    
-    (let ((real-name nil)
+(defun create-test-object (&key 
+			     name
+			     file-on-disk
+			     description
+			     expectation
+			     tags
+			     re-evaluate
+			     source
+			     expected-value
+			     run-value
+			     (run-time 0.0)
+			     result
+			     before-function-source
+			     before-function-run-status
+			     after-function-source
+			     after-function-run-status)
+
+   (let ((real-name nil)
 	  (real-fod nil)
 	  (real-desc nil)
 	  (real-exp nil)
@@ -78,7 +88,7 @@
       (if (gethash real-name *test-names*)
 	  (progn
 	    (format t "The name ~a is already registered.~&" real-name)
-	    (return-from make-test nil)))
+	    (return-from create-test-object nil)))
       
       ;;producing a potential file-name for the test on disk 
       
@@ -113,7 +123,7 @@
 			 "T"
 			 "CONDITION"
 			 "ERROR")
-		 (return-from make-test nil))))
+		 (return-from create-test-object nil))))
       
       ;;producing test tags
       (cond ((and (not (listp tags))
@@ -136,7 +146,7 @@
       (cond ((null source)
 	     (progn
 	       (format t "You must provide a valid lisp expression that can be used for the test.")
-	       (return-from make-test nil)))
+	       (return-from create-test-object nil)))
 	    ((and (listp source) (not (equal (car source) 'lambda)))
 	     (setf real-source (list 'lambda nil source)))
 	    ((and (listp source) (equal (car source) 'lambda))
@@ -183,8 +193,8 @@
 	      (equal real-after-function-source '(lambda () nil)))
 	  (setf real-compiled-after-function-form *test-empty-function*)
 	  (setf real-compiled-after-function-form (eval real-after-function-source)))
-      
-      (register-test  (make-instance 'test
+
+      (make-instance 'test
 		   :name real-name
 		   :file-on-disk real-fod
 		   :description real-desc
@@ -203,4 +213,38 @@
 		   :after-function-source real-after-function-source
 		   :before-function-run-status before-function-run-status
 		   :after-function-compiled-form real-compiled-after-function-form
+		   :after-function-run-status after-function-run-status)))
+
+(defun make-test (&key 
+		    name
+		    file-on-disk
+		    description
+		    expectation
+		    tags
+		    re-evaluate
+		    source
+		    expected-value
+		    run-value
+		    (run-time 0.0)
+		    result
+		    before-function-source
+		    before-function-run-status
+		    after-function-source
+		    after-function-run-status)
+    
+      (register-test  (create-test-object
+		   :name name
+		   :file-on-disk file-on-disk
+		   :description description
+		   :expectation expectation
+		   :tags tags
+		   :re-evaluate re-evaluate
+		   :source source
+		   :expected-value expected-value
+		   :run-value run-value
+		   :run-time run-time
+		   :result result
+		   :before-function-source before-function-source
+		   :after-function-source after-function-source
+		   :before-function-run-status before-function-run-status
 		   :after-function-run-status after-function-run-status))))
