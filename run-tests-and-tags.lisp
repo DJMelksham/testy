@@ -19,29 +19,37 @@
 
 (in-package :testy)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 1.  This function runs multiple tests contained in an array ;
+;;;     of tests                                                ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun run-tests (&optional (test-sequence (all-tests)) (re-evaluate 'auto))
-  (let ((result t))
-	(loop for tests across test-sequence
-	   do (if (not (funcall #'run-test tests re-evaluate))
-		  (setf result nil)))
-	result))
+  "Run an array of test objects"
 
-(defun mt-run-tests (&optional (test-sequence (all-tests)) (re-evaluate 'auto))
-  ;; Do a regular run-tests operation if you only have 1 core established.
-  (if (= *number-of-cores* 1)
-      (return-from mt-run-tests (run-tests test-sequence re-evaluate)))
+  ;; "Should we multi-thread this operation?
+  (if (or (not *multi-thread?*)
+	  (= *number-of-cores* 1))
+      ;; No, we really shouldn't multi-thread this operation...
+      (return-from run-tests
+	(let ((result t)) ; is returned and gets set to nil if a test fails
+	  (loop for tests across test-sequence
+	     do (if (not (funcall #'run-test tests re-evaluate))
+		    (setf result nil)))
+	  result)))
 
+  ;; Yeah, i think we'll multi-thread this
   ;; Start doing some heavy lifing if we want to multi-thread
-  ;; in a lockless fashion.
+  ;; in a lockless fashion (which we do).
   
   (let* ((tests-for-threads (make-array *number-of-cores*))
 	 (threads nil))
-
+    
     ;; Build test-arrays for all threads
     (loop
        for i from 0 to (- *number-of-cores* 1)
        do (setf (svref tests-for-threads i) (make-array 0 :element-type 'test :adjustable t :fill-pointer 0)))
-
+    
     ;; Populate test-arrays for all threads
     (loop
        for test across test-sequence
@@ -50,9 +58,9 @@
        do (vector-push-extend test (svref tests-for-threads j)) 
        do (if (= i *number-of-cores*)
 	      (setf i 0)))
-
+    
     ;; Make threads and run the tests
-
+    
     (loop
        for tests across tests-for-threads
        do (push (sb-thread:make-thread
@@ -63,27 +71,21 @@
 		      do (run-test test re-evaluate)))
 		 :arguments tests)
 		threads))
-
-    ;; Ensure all threads have finished work
-
-    (loop for thread in threads
-	 do (sb-thread:join-thread thread))
-
-    ;; Return T or NIL depending on whether all tests passed
-  (let ((result t))
-	(loop for test across test-sequence
-	   do (if (not (result test))
-		  (progn
-		    (setf result nil)
-		    (return nil))))
-	result)))
-
-
     
-(defun run-tags (tags &optional (re-evaluate 'auto))
-  (if *multi-thread?*
-      (run-tests (fetch-tests-from-tags tags) re-evaluate)
-      (run-tests (fetch-tests-from-tags tags) re-evaluate)))
+    ;; Ensure all threads have finished work
+    
+    (loop for thread in threads
+       do (sb-thread:join-thread thread))
+    
+    ;; Return T or NIL depending on whether all tests passed
+    (let ((result t))
+      (loop for test across test-sequence
+	 do (if (not (result test))
+		(progn
+		  (setf result nil)
+		  (return nil))))
+      result)))
 
-(defun mt-run-tags (tags &optional (re-evaluate 'auto))
-  (run-tags tags re-evaluate))
+(defun run-tags (tags &optional (re-evaluate 'auto))
+  "Run the tests contained in various tags"
+      (run-tests (fetch-tests-from-tags tags) re-evaluate))

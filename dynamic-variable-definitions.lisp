@@ -25,7 +25,11 @@
 (defvar *number-of-cores* 4)
 
 (defun set-number-of-cores (n)
-  (setf *number-of-cores* n))
+  ;;; rediculously rudimentary test
+  (if (and (> n 0)
+	   (< n *most-positive-fixnum*))
+      (setf *number-of-cores* n)
+      nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Dynamic variables to determine whether Testy attempts to ;

@@ -31,7 +31,8 @@
 ;;;
 ;;;  INDEX
 ;;;
-;;;  0. Set number of cores for multi-threaded code
+;;;  0. Set number of cores for multi-threaded code and
+;;;     establish preference for multi-threading.
 ;;;
 ;;;  1. Set the active project
 ;;;
@@ -69,9 +70,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
 ;;; 0. Set number of cores for multi-thread activities ;
+;;;    and establish multi-core preference             ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    
    #:set-number-of-cores
+   #:set-multi-thread
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
 ;;; 1. Set the active project ;

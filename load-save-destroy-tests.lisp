@@ -17,6 +17,14 @@
 ;;;
 ;;; 2. Loading a test reads serialised test-objects from disk back into the
 ;;; lisp image (registering the test in Testy's dynamic variables as it does so).
+;;; Or at least, that's what the totality of the concept describes.  Really,
+;;; there are 3 discrete steps in this process:
+;;;  a) reading the serialised source into the image as an association list.
+;;;  b) conversion of an association list into a corresponding
+;;;     test object.
+;;;  c) registration of the test test object
+;;;
+;;; Functions exist that perform, and combine/wrap a number of these functions. 
 ;;;
 ;;; 3. Destroying a test combines the actions of de-registering a test from the
 ;;; the Testy dynamic variables, as well as deleting the serialised 
@@ -87,14 +95,15 @@
      do (serialise directory-path test)
      finally (return i)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 2. a) Load a serialised test object into the lisp image ; 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 2. Load a serialised test object ; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Load and return a test object, but don't register it    ;
-;;; in the Testy register.                                  ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; a) Load a serialised test object into an assoc-list    ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun load-test-into-assoc (pathname)
   "Load a test serialised object into an in-lisp-image assoc list"
@@ -103,6 +112,10 @@
 			  :if-does-not-exist :error)
     (let ((*package* (find-package *testy-active-name*)))
 	  (read stream))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; b) Convert an association list into a test object ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun convert-assoc-to-test (a-list)
   "Make a test object from an assoc list"
@@ -122,50 +135,61 @@
 			:after-function-source (string=lookup 'AFTER-FUNCTION-source a-list)
 			:after-function-run-status (string=lookup 'AFTER-FUNCTION-RUN-STATUS a-list)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; c) Combine a conversion of a serialised object into an association list ;
+;;;    and a creation of a test object, but do not register the object with ;
+;;;    Testy's dynamic variables                                            ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun basic-load-test (pathname)
   "Load a test without registering it into the Testy system"
   (let ((a-list (load-test-into-assoc pathname)))
     (convert-assoc-to-test a-list)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; d) All of the fun of basic-load-test, but with test registration as well ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun load-test (pathname)
   "Load an individual test from a .test file into the lisp image"
   (register-test (basic-load-test pathname)))
     
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 2. b) Perform the load operation on a series of tests in a directory ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; e) Perform the load-test operation on a series of tests in a directory ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun load-tests (&optional (directory-path *testy-active-path*))
   "Load all .test objects in a directory into the current lisp image"
-  (loop
-     for i = 0 then (incf i)
-     for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
-     do (load-test test-path)
-     finally (return i)))
 
-(defun mt-load-tests (&optional (directory-path *testy-active-path*))
-  "Load tests into Testy's register using multiple threads"
+  ;;; Should we multi-thread this sucka?
+  (if (or (not *multi-thread?*)
+	  (= *number-of-cores* 1))
+      ;;; No, we should't multi-thread this sucka...
+    
+	(return-from load-tests
+	(loop
+	   for i = 0 then (incf i)
+	   for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
+	   do (load-test test-path)
+	   finally (return i))))
 
-  ;; Just do a regular load tests if you only have 1 core established
-  (if (= *number-of-cores* 1)
-      (return-from mt-load-tests (load-tests directory-path)))
-
-  ;;; If you have more than 1 core, we do the heavy lifting
+  ;;; Yeah, let's multi-thread this sucka, what could possibly go wrong!?
+  ;;; If you have more than 1 core, we do some heavy lifting that should be refactored...
   ;;; Attempting to implement a lockless algorithm
   ;;; that will work pretty well most of the time,
-  ;;; be deterministic and predictable, and maintain good speed up
+  ;;; and maintain good speed up
   ;;; and good likely minimum run-time.
-  ;;; Probably doing it poorly.
+  ;;; Probably (definitely) doing it suboptimally at this stage...
   
   (let* ((files-for-threads (make-array *number-of-cores*))
 	 (tests-for-threads (make-array *number-of-cores*))
 	 (threads nil))
-
+    
     ;; Build test-path arrays for all the threads
     (loop
        for i from 0 to (- *number-of-cores* 1)
        do (setf (svref files-for-threads i) (make-array 0 :adjustable t :fill-pointer 0)))
-
+    
     ;; Populate test-path arrays for all the threads
     (loop
        for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
@@ -174,7 +198,7 @@
        do (vector-push-extend test-path (svref files-for-threads j)) 
        do (if (= i *number-of-cores*)
 	      (setf i 0)))
-
+    
     ;; Build the test arrays for all the threads 
     (loop
        for i from 0 to (- *number-of-cores* 1)	    
@@ -192,19 +216,19 @@
 		      do (setf (svref y j) (basic-load-test test-path))))
 		 :arguments (list files tests))
 		threads))
-
+    
     ;; Ensure all threads have finished their work
-
+    
     (loop for thread in threads
-	 do (sb-thread:join-thread thread))
-
+       do (sb-thread:join-thread thread))
+    
     ;; Put the tests made by the threads, put into
     ;; one array and register them
-
+    
     (loop for test-arrays across tests-for-threads
        do (loop for test across test-arrays
 	     do (register-test test)))
-
+    
     ;; Return the number of registered tests
     (hash-table-count *test-names*)))
   
