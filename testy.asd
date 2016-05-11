@@ -24,8 +24,8 @@
                      OO or Xunit inspired testers"
   :serial t
   :components ((:file "package")
-	       (:file "dynamic-variable-definitions")
 	       (:file "first-level-helpers")
+	       (:file "dynamic-variable-definitions")
 	       (:file "set-testy-active-project")
 	       (:file "set-print-verbosity")
                (:file "test-object-definition")
@@ -40,4 +40,4 @@
 	       (:file "reporting")
 	       (:file "convenient-test-accessors"))
 
-  :depends-on (#:uiop))
+  :depends-on (#:uiop #:cffi #:bordeaux-threads))

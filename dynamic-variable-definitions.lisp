@@ -17,6 +17,27 @@
 
 (in-package :testy)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Establish how many processors we have to work with ;
+;;; Default is 4                                       ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar *number-of-cores* 4)
+
+(defun set-number-of-cores (n)
+  (setf *number-of-cores* n))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Dynamic variables to determine whether Testy attempts to ;
+;;; load-tests or run-tests using multiple threads           ;
+;;; by default                                               ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar *multi-thread?* T)
+
+(defun set-multi-thread (predicate)
+  (setf *multi-thread?* predicate))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; *testy-active-name* identifies the system that

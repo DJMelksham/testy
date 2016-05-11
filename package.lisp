@@ -31,6 +31,8 @@
 ;;;
 ;;;  INDEX
 ;;;
+;;;  0. Set number of cores for multi-threaded code
+;;;
 ;;;  1. Set the active project
 ;;;
 ;;;  2. Set the verbosity of printed test objects
@@ -65,6 +67,12 @@
   (:use #:cl)
   (:export
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
+;;; 0. Set number of cores for multi-thread activities ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   
+   #:set-number-of-cores
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;   
 ;;; 1. Set the active project ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

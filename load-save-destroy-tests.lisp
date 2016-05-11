@@ -91,29 +91,46 @@
 ;;; 2. a) Load a serialised test object into the lisp image ; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun load-test (pathname)
-  "Load an individual test from a .test file into the lisp image"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Load and return a test object, but don't register it    ;
+;;; in the Testy register.                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun load-test-into-assoc (pathname)
+  "Load a test serialised object into an in-lisp-image assoc list"
   (with-open-file (stream pathname
 			  :direction :input
 			  :if-does-not-exist :error)
-    (let* ((*package* (find-package *testy-active-name*))
-	   (a-list (read stream)))
-      (make-test :name (string=lookup 'NAME a-list)
-		 :file-on-disk (string=lookup 'FILE-ON-DISK a-list)
-		 :description (string=lookup 'DESCRIPTION a-list)
-		 :expectation (string=lookup 'EXPECTATION a-list)
-		 :tags (string=lookup 'TAGS a-list)
-		 :re-evaluate (string=lookup 'RE-EVALUATE a-list)
-		 :source (string=lookup 'SOURCE a-list)
-		 :expected-value (string=lookup 'EXPECTED-VALUE a-list)
-		 :run-value (string=lookup 'RUN-VALUE a-list)
-		 :run-time (string=lookup 'RUN-TIME a-list)
-		 :result (string=lookup 'RESULT a-list)
-		 :before-function-source (string=lookup 'BEFORE-FUNCTION-SOURCE a-list)
-		 :before-function-run-status (string=lookup 'BEFORE-FUNCTION-RUN-STATUS a-list)
-		 :after-function-source (string=lookup 'AFTER-FUNCTION-source a-list)
-		 :after-function-run-status (string=lookup 'AFTER-FUNCTION-RUN-STATUS a-list)))))
+    (let ((*package* (find-package *testy-active-name*)))
+	  (read stream))))
 
+(defun convert-assoc-to-test (a-list)
+  "Make a test object from an assoc list"
+  (create-test-object :name (string=lookup 'NAME a-list)
+			:file-on-disk (string=lookup 'FILE-ON-DISK a-list)
+			:description (string=lookup 'DESCRIPTION a-list)
+			:expectation (string=lookup 'EXPECTATION a-list)
+			:tags (string=lookup 'TAGS a-list)
+			:re-evaluate (string=lookup 'RE-EVALUATE a-list)
+			:source (string=lookup 'SOURCE a-list)
+			:expected-value (string=lookup 'EXPECTED-VALUE a-list)
+			:run-value (string=lookup 'RUN-VALUE a-list)
+			:run-time (string=lookup 'RUN-TIME a-list)
+			:result (string=lookup 'RESULT a-list)
+			:before-function-source (string=lookup 'BEFORE-FUNCTION-SOURCE a-list)
+			:before-function-run-status (string=lookup 'BEFORE-FUNCTION-RUN-STATUS a-list)
+			:after-function-source (string=lookup 'AFTER-FUNCTION-source a-list)
+			:after-function-run-status (string=lookup 'AFTER-FUNCTION-RUN-STATUS a-list)))
+
+(defun basic-load-test (pathname)
+  "Load a test without registering it into the Testy system"
+  (let ((a-list (load-test-into-assoc pathname)))
+    (convert-assoc-to-test a-list)))
+
+(defun load-test (pathname)
+  "Load an individual test from a .test file into the lisp image"
+  (register-test (basic-load-test pathname)))
+    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 2. b) Perform the load operation on a series of tests in a directory ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -126,6 +143,71 @@
      do (load-test test-path)
      finally (return i)))
 
+(defun mt-load-tests (&optional (directory-path *testy-active-path*))
+  "Load tests into Testy's register using multiple threads"
+
+  ;; Just do a regular load tests if you only have 1 core established
+  (if (= *number-of-cores* 1)
+      (return-from mt-load-tests (load-tests directory-path)))
+
+  ;;; If you have more than 1 core, we do the heavy lifting
+  ;;; Attempting to implement a lockless algorithm
+  ;;; that will work pretty well most of the time,
+  ;;; be deterministic and predictable, and maintain good speed up
+  ;;; and good likely minimum run-time.
+  ;;; Probably doing it poorly.
+  
+  (let* ((files-for-threads (make-array *number-of-cores*))
+	 (tests-for-threads (make-array *number-of-cores*))
+	 (threads nil))
+
+    ;; Build test-path arrays for all the threads
+    (loop
+       for i from 0 to (- *number-of-cores* 1)
+       do (setf (svref files-for-threads i) (make-array 0 :adjustable t :fill-pointer 0)))
+
+    ;; Populate test-path arrays for all the threads
+    (loop
+       for test-path in (uiop:directory-files (uiop:ensure-directory-pathname directory-path) "*.test")
+       for i = 1 then (incf i)
+       for j = (- *number-of-cores* i)
+       do (vector-push-extend test-path (svref files-for-threads j)) 
+       do (if (= i *number-of-cores*)
+	      (setf i 0)))
+
+    ;; Build the test arrays for all the threads 
+    (loop
+       for i from 0 to (- *number-of-cores* 1)	    
+       do (setf (svref tests-for-threads i) (make-array (length (svref files-for-threads i)))))
+    
+    ;; Make threads and assign tests to the test-for-threads array
+    (loop
+       for files across files-for-threads
+       for tests across tests-for-threads
+       do (push (sb-thread:make-thread
+		 (lambda (x y)
+		   (loop
+		      for test-path across x
+		      for j = 0 then (incf j)
+		      do (setf (svref y j) (basic-load-test test-path))))
+		 :arguments (list files tests))
+		threads))
+
+    ;; Ensure all threads have finished their work
+
+    (loop for thread in threads
+	 do (sb-thread:join-thread thread))
+
+    ;; Put the tests made by the threads, put into
+    ;; one array and register them
+
+    (loop for test-arrays across tests-for-threads
+       do (loop for test across test-arrays
+	     do (register-test test)))
+
+    ;; Return the number of registered tests
+    (hash-table-count *test-names*)))
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 3. a) Destroy (de-register and delete from disk) a test ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
