@@ -1,0 +1,15 @@
+
+((NAME . "MAKE-TEST-1") (FILE-ON-DISK . "MAKE-TEST-1.test")
+ (DESCRIPTION
+  . "Verifies that the make-test function makes a test and successfully lodges it in *test-names* under the correct name")
+ (EXPECTATION . "EQ") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (MAKE-TEST :NAME "A-test-name" :DESCRIPTION
+                      "This test test has a description" :SOURCE '(+ 1 1)
+                      :EXPECTED-VALUE 2)
+           (NTH-VALUE 1 (GETHASH "A-test-name" *TEST-NAMES*))))
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.006)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

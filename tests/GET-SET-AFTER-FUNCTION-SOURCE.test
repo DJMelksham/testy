@@ -1,0 +1,18 @@
+
+((NAME . "GET-SET-AFTER-FUNCTION-SOURCE")
+ (FILE-ON-DISK . "GET-SET-AFTER-FUNCTION-SOURCE.test")
+ (DESCRIPTION
+  . "Testing that we can set the after-function-source to the value of '(lambda nil nil) and then retrieve it using get-after-function-source")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((A '(LAMBDA () NIL))
+               (*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (MAKE-TEST :NAME "A-test-name" :DESCRIPTION
+                      "This test test has a description" :SOURCE '(+ 1 1)
+                      :EXPECTED-VALUE 2)
+           (SET-AFTER-FUNCTION-SOURCE "A-test-name" A)
+           (GET-AFTER-FUNCTION-SOURCE "A-test-name")))
+ (RE-EVALUATE) (EXPECTED-VALUE LAMBDA NIL NIL) (RUN-VALUE LAMBDA NIL NIL)
+ (RUN-TIME . 0.001) (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

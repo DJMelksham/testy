@@ -1,0 +1,13 @@
+
+((NAME . "SET-NUMBER-OF-CORES-1") (FILE-ON-DISK . "SET-NUMBER-OF-CORES-1.test")
+ (DESCRIPTION
+  . "Testing that set-number-of-cores function successfully works by setting *number-of-cores* to 3")
+ (EXPECTATION . "=") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*NUMBER-OF-CORES* 1))
+           (SET-NUMBER-OF-CORES 3)
+           *NUMBER-OF-CORES*))
+ (RE-EVALUATE) (EXPECTED-VALUE . 3) (RUN-VALUE . 3) (RUN-TIME . 0.0)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

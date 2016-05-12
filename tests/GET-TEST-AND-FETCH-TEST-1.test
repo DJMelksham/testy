@@ -1,0 +1,16 @@
+
+((NAME . "GET-TEST-AND-FETCH-TEST-1")
+ (FILE-ON-DISK . "GET-TEST-AND-FETCH-TEST-1.test")
+ (DESCRIPTION
+  . "Testing that get-test and fetch test called in the same context return the same object")
+ (EXPECTATION . "EQ") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (MAKE-TEST :NAME "A-test-name" :DESCRIPTION
+                      "This test test has a description" :SOURCE '(+ 1 1)
+                      :EXPECTED-VALUE 2)
+           (EQ (GET-TEST "A-test-name") (FETCH-TEST "A-test-name"))))
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.004)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

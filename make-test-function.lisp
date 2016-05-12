@@ -1,35 +1,66 @@
-(defun make-test (&key 
-		    id
-		    name
-		    file-on-disk
-		    description
-		    expectation
-		    tags
-		    re-evaluate
-		    source
-		    expected-value
-		    (run-value nil)
-		    (run-time 0.0)
-		    (result nil)
-		    before-function-source
-		    after-function-source
-		    (type-of-test (if (null *test-style-warnings*)
-				      'nw
-				      nil)))
-  
-  
-  (macrolet ((nw-eval? (&rest body)
-	       `(if (not (eq real-type-of-test 'nw))
-		    (eval ,@body)
-		    (handler-bind
-			((style-warning 
-			  #'(lambda (w) 
-			      (when (undefined-warning-p w)
-				(invoke-restart 'muffle-warning)))))
-		      (eval ,@body)))))
-    
-    (let ((real-id (if (null id) (new-test-id) id))
-	  (real-name nil)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; System: Testy - A Testing Framework and a Triple Entendre in One!
+;;; Author: Damien John Melksham
+;;; Written using Ubuntu 16.04, SBCL 1.3.1
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Create-test-object is a low-level fundamental test creating function.
+;;;
+;;; Make-test is a thin wrapper around create test that combines test-object
+;;; creation and test registration in Testy.
+;;;
+;;; If you wish to create tests programatically or in source code, there is a
+;;; good chance that make-test is the function for you, or if you want to get
+;;; so low level as to not use Testy's higher level capabilities, then maybe you
+;;; want to fiddle around with create-test-object.
+;;;
+;;; My preference, however is to create tests interactively at the REPL
+;;; during development, not as separate .lisp files or at run-time.
+;;; Observances of the first phenomenon lead me to believe
+;;; it is slow and flow-breaking, and observances of the second
+;;; lead me to believe many automated tests often result in superfluous
+;;; tests of questionable structure and value, though I accept there are valid
+;;; applications of both techniques.
+;;;
+;;; Regardless, it is possible, maybe even preferable, to use
+;;; Testy without ever explicitly calling the make-test function, and
+;;; certainly without explicitly calling the low-level
+;;; create-test-object directly.
+;;; 
+;;; But the macros responsible for test authorship, defined in later code,
+;;; are merely convenient wrappers around make-test, and carry the restriction
+;;; of establishing tests based on input at compile time, and automatic
+;;; Testy assumptions and integration, and so cannot cover
+;;; every conceivable use case.
+;;;
+;;; Arguments do exist for taking out some of the monolithic logic contained
+;;; within create-test-object and putting them into their own functions in
+;;; the future...but right now I am not sure of the merits/design of doing so...
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(in-package :testy)
+
+(defun create-test-object (&key 
+			     name
+			     file-on-disk
+			     description
+			     expectation
+			     tags
+			     re-evaluate
+			     source
+			     expected-value
+			     run-value
+			     (run-time 0.0)
+			     result
+			     before-function-source
+			     before-function-run-status
+			     after-function-source
+			     after-function-run-status)
+
+   (let ((real-name nil)
 	  (real-fod nil)
 	  (real-desc nil)
 	  (real-exp nil)
@@ -41,21 +72,23 @@
 	  (real-before-function-source nil)
 	  (real-compiled-before-function-form nil)
 	  (real-after-function-source nil)
-	  (real-compiled-after-function-form nil)
-	  (real-type-of-test nil))
+	  (real-compiled-after-function-form nil))
       
       ;;producing test name
       
       (if (not name) 
-	  (setf real-name (concatenate 'string (package-name *package*) ":TEST-" (write-to-string real-id)))
+	  (setf real-name
+		(let ((resulting-real-name (concatenate 'string (string *testy-active-name*) ":TEST-0")))
+		  (loop for i = 0 then (incf i)
+		     while (gethash resulting-real-name *test-names*)
+		     do (setf resulting-real-name (concatenate 'string (string *testy-active-name*) ":TEST-" (write-to-string i))))
+		  resulting-real-name))
 	  (setf real-name (string-upcase name)))
       
       (if (gethash real-name *test-names*)
 	  (progn
-	    (format t "The name ~a is already registered to Test ID ~a~&" 
-		    real-name
-		    (id (gethash real-name *test-names*)))
-	    (return-from make-test nil)))
+	    (format t "The name ~a is already registered.~&" real-name)
+	    (return-from create-test-object nil)))
       
       ;;producing a potential file-name for the test on disk 
       
@@ -63,12 +96,6 @@
 	    ((and (stringp file-on-disk) (ends-with-p file-on-disk ".test"))
 	     (setf real-fod file-on-disk))
 	    (t (setf real-fod (concatenate 'string file-on-disk ".test"))))
-      
-      ;;set type-of-test
-      (if (or (null type-of-test)
-	      (eq type-of-test 'nw))
-	  (setf real-type-of-test type-of-test)
-	  (setf real-type-of-test nil))
 
       ;;producing test file description
       
@@ -77,7 +104,6 @@
 	  (setf real-desc "No valid description has been supplied for this test.")
 	  (setf real-desc description))
       
-      ;;producing test expectation
       ;;hardcoded test expectations for now...
       (cond ((null expectation) 
 	     (setf real-exp "EQUALP"))
@@ -97,10 +123,9 @@
 			 "T"
 			 "CONDITION"
 			 "ERROR")
-		 (return-from make-test nil))))
+		 (return-from create-test-object nil))))
       
       ;;producing test tags
-      
       (cond ((and (not (listp tags))
 		  (not (stringp tags))
 		  (notevery #'stringp tags)) 
@@ -121,7 +146,7 @@
       (cond ((null source)
 	     (progn
 	       (format t "You must provide a valid lisp expression that can be used for the test.")
-	       (return-from make-test nil)))
+	       (return-from create-test-object nil)))
 	    ((and (listp source) (not (equal (car source) 'lambda)))
 	     (setf real-source (list 'lambda nil source)))
 	    ((and (listp source) (equal (car source) 'lambda))
@@ -132,11 +157,11 @@
       ;;producing test compiled form
       ;;assumes SBCL-esque default behaviour where everything is compiled unless otherwise
       ;;stated.  May need to be changed if this lisp code is ever made purely portable.
-      (setf real-compiled-form (nw-eval? real-source))
+      (setf real-compiled-form (eval real-source))
       
       ;;producing test expected value
       (if (null expected-value)
-	  (setf real-expected-value T)
+	  (setf real-expected-value nil)
 	  (setf real-expected-value expected-value))
       
       ;;producing test before-function-source
@@ -152,7 +177,7 @@
       (if (or (null real-before-function-source)
 	      (equal real-before-function-source '(lambda () nil)))
 	  (setf real-compiled-before-function-form *test-empty-function*)
-	  (setf real-compiled-before-function-form (nw-eval? real-before-function-source)))
+	  (setf real-compiled-before-function-form (eval real-before-function-source)))
       
       ;;producing test after-function-source
       (cond ((null after-function-source)
@@ -167,14 +192,14 @@
       (if (or (null real-after-function-source)
 	      (equal real-after-function-source '(lambda () nil)))
 	  (setf real-compiled-after-function-form *test-empty-function*)
-	  (setf real-compiled-after-function-form (nw-eval? real-after-function-source)))
-      
-      (register-test  (make-instance 'test
-		   :id real-id
+	  (setf real-compiled-after-function-form (eval real-after-function-source)))
+
+      (make-instance 'test
 		   :name real-name
 		   :file-on-disk real-fod
 		   :description real-desc
 		   :expectation real-exp
+		   :expectation-function (gethash real-exp *expectation-table*)
 		   :re-evaluate real-re-evaluate
 		   :tags real-tags
 		   :source real-source
@@ -186,32 +211,40 @@
 		   :before-function-source real-before-function-source
 		   :before-function-compiled-form real-compiled-before-function-form
 		   :after-function-source real-after-function-source
+		   :before-function-run-status before-function-run-status
 		   :after-function-compiled-form real-compiled-after-function-form
-		   :type-of-test real-type-of-test)))))
+		   :after-function-run-status after-function-run-status)))
 
-
-(defun load-test (pathname)
-  (with-open-file (stream pathname
-			  :direction :input
-			  :if-does-not-exist :error)
-    (let ((a-list (read stream)))
-      (make-test :name (cdr (assoc 'NAME a-list))
-		 :file-on-disk (cdr (assoc 'FILE-ON-DISK a-list))
-		 :description (cdr (assoc 'DESCRIPTION a-list))
-		 :expectation (cdr (assoc 'EXPECTATION a-list))
-		 :tags (cdr (assoc 'TAGS a-list))
-		 :re-evaluate (cdr (assoc 'RE-EVALUATE a-list))
-		 :source (cdr (assoc 'SOURCE a-list))
-		 :expected-value (cdr (assoc 'EXPECTED-VALUE a-list))
-		 :run-value (cdr (assoc 'RUN-VALUE a-list))
-		 :run-time (cdr (assoc 'RUN-TIME a-list))
-		 :result (cdr (assoc 'RESULT a-list))
-		 :before-function-source (cdr (assoc 'BEFORE-FUNCTION-SOURCE a-list))
-		 :after-function-source (cdr (assoc 'AFTER-FUNCTION-source a-list))
-		 :type-of-test (cdr (assoc 'TYPE-OF-TEST a-list))))))
-
-(defun load-tests (directory-path)
-  (map 'vector #'identity 
-       (loop 
-	  for test-path in (remove-if #'cl-fad:directory-pathname-p (cl-fad:list-directory directory-path))
-	  collect (load-test test-path))))
+(defun make-test (&key 
+		    name
+		    file-on-disk
+		    description
+		    expectation
+		    tags
+		    re-evaluate
+		    source
+		    expected-value
+		    run-value
+		    (run-time 0.0)
+		    result
+		    before-function-source
+		    before-function-run-status
+		    after-function-source
+		    after-function-run-status)
+    
+      (register-test  (create-test-object
+		   :name name
+		   :file-on-disk file-on-disk
+		   :description description
+		   :expectation expectation
+		   :tags tags
+		   :re-evaluate re-evaluate
+		   :source source
+		   :expected-value expected-value
+		   :run-value run-value
+		   :run-time run-time
+		   :result result
+		   :before-function-source before-function-source
+		   :after-function-source after-function-source
+		   :before-function-run-status before-function-run-status
+		   :after-function-run-status after-function-run-status)))

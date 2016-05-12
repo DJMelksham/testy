@@ -1,0 +1,19 @@
+
+((NAME . "ADD-TAGS-3") (FILE-ON-DISK . "ADD-TAGS-3.test")
+ (DESCRIPTION
+  . "Verify that add-tags correctly registers tags to the *test-tag* hash table")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "a-test2" :SOURCE (+ 1 1) :TAGS '("woot" "doot")
+                 :EXPECTED-VALUE 2)
+           (ADD-TAGS '("a-test" "a-test2") '("soot" "newt"))
+           (LOOP FOR MEH BEING THE HASH-KEYS IN *TEST-TAGS*
+                 COLLECT MEH)))
+ (RE-EVALUATE) (EXPECTED-VALUE "WOOT" "POOT" "DOOT" "NEWT" "SOOT")
+ (RUN-VALUE "WOOT" "POOT" "DOOT" "NEWT" "SOOT") (RUN-TIME . 0.002) (RESULT . T)
+ (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL) (BEFORE-FUNCTION-RUN-STATUS . T)
+ (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL) (AFTER-FUNCTION-RUN-STATUS . T)) 

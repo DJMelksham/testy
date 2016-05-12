@@ -1,0 +1,17 @@
+
+((NAME . "GET-EXPECTED-VALUE-1") (FILE-ON-DISK . "GET-EXPECTED-VALUE-1.test")
+ (DESCRIPTION
+  . "Testing whether we can get the expected value of a test referenced by name via the (get-expected-value) function")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (TEST :NAME "another-test" :SOURCE (+ 1 1) :TAGS '("toot" "poot")
+                 :EXPECTED-VALUE 2)
+           (GET-EXPECTED-VALUE "a-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE . 2) (RUN-VALUE . 2) (RUN-TIME . 0.009000001)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

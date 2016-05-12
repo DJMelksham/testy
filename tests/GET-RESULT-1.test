@@ -1,0 +1,15 @@
+
+((NAME . "GET-RESULT-1") (FILE-ON-DISK . "GET-RESULT-1.test")
+ (DESCRIPTION
+  . "Testing whether we successfully get the result of a passing test with the function (get-result)")
+ (EXPECTATION . "EQ") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :EXPECTED-VALUE 2)
+           (RUN-TESTS)
+           (GET-RESULT "a-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.012)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

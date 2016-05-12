@@ -1,0 +1,18 @@
+
+((NAME . "SET-AND-GET-BEFORE-FUNCTION-SOURCE-1")
+ (FILE-ON-DISK . "SET-AND-GET-BEFORE-FUNCTION-SOURCE-1.test")
+ (DESCRIPTION
+  . "Testing that the basic operations of setting and getting before function sources from test objects work")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((A '(LAMBDA () NIL))
+               (*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (MAKE-TEST :NAME "A-test-name" :DESCRIPTION
+                      "This test test has a description" :SOURCE '(+ 1 1)
+                      :EXPECTED-VALUE 2)
+           (SET-BEFORE-FUNCTION-SOURCE "A-test-name" A)
+           (GET-BEFORE-FUNCTION-SOURCE "A-test-name")))
+ (RE-EVALUATE) (EXPECTED-VALUE LAMBDA NIL NIL) (RUN-VALUE LAMBDA NIL NIL)
+ (RUN-TIME . 0.001) (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

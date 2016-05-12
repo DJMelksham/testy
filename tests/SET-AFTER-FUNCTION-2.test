@@ -1,0 +1,19 @@
+
+((NAME . "SET-AFTER-FUNCTION-2") (FILE-ON-DISK . "SET-AFTER-FUNCTION-2.test")
+ (DESCRIPTION
+  . "Testing that the setting of the after-function-source correctly sets the after-function-compiled-form to the function found in *test-empty-function*")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((A '(LAMBDA () NIL))
+               (*TEST-EMPTY-FUNCTION* (LAMBDA () NIL))
+               (*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (MAKE-TEST :NAME "A-test-name" :DESCRIPTION
+                      "This test test has a description" :SOURCE '(+ 1 1)
+                      :EXPECTED-VALUE 2)
+           (SET-AFTER-FUNCTION-SOURCE "A-test-name" A)
+           (EQ (AFTER-FUNCTION-COMPILED-FORM (GET-TEST "A-test-name"))
+               *TEST-EMPTY-FUNCTION*)))
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.001)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

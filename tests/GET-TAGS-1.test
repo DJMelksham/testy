@@ -1,0 +1,15 @@
+
+((NAME . "GET-TAGS-1") (FILE-ON-DISK . "GET-TAGS-1.test")
+ (DESCRIPTION
+  . "Show that (get-tags) correctly returns the tag item from within a registered test when provided the tests' name")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP))
+               (*TEST-TAGS* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (TEST :NAME "a-test" :SOURCE (+ 1 1) :TAGS '("woot" "poot")
+                 :EXPECTED-VALUE 2)
+           (GET-TAGS "a-test")))
+ (RE-EVALUATE) (EXPECTED-VALUE "WOOT" "POOT") (RUN-VALUE "WOOT" "POOT")
+ (RUN-TIME . 0.0) (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 

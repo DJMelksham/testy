@@ -1,0 +1,12 @@
+
+((NAME . "ALL-TESTS-1") (FILE-ON-DISK . "ALL-TESTS-1.test")
+ (DESCRIPTION
+  . "Verify the (all-tests) function returns an empty array when there are no tests registered in *test-names*")
+ (EXPECTATION . "EQUALP") (TAGS)
+ (SOURCE LAMBDA NIL
+         (LET ((*TEST-NAMES* (MAKE-HASH-TABLE :TEST #'EQUALP)))
+           (ALL-TESTS)))
+ (RE-EVALUATE) (EXPECTED-VALUE . #()) (RUN-VALUE . #()) (RUN-TIME . 0.0)
+ (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
+ (AFTER-FUNCTION-RUN-STATUS . T)) 
