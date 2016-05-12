@@ -80,15 +80,18 @@
     (setf (compiled-form local-test) (eval (source local-test)))))
 
 (defun set-sources (test-identifiers source &optional (expected-value nil ev-supplied-p))
+  "Set the source code of many test objects referenced in an array of names or identities"
   (loop for test across (get-tests test-identifiers)
      do (if ev-supplied-p
 	    (set-source test source expected-value)
 	    (set-source test source))))
 
 (defun get-expectation (test)
+  "Get the expectation function name from a test object referenced by name or identity"
   (expectation (get-test test)))
 
 (defun set-expectation (test expectation)
+  "Set the expectation function name for a test object referenced by name or identity"
   (let ((local-test (get-test test)))
   (if (member (string-upcase expectation)
 	      (list "EQ" "=" "EQL" "EQUAL" "EQUALP" "NULL" "NOTNULL" "T" "CONDITION" "ERROR") :test #'equal)
@@ -98,18 +101,22 @@
       nil)))
 
 (defun set-expectations (test-identifiers expectation)
+  "Set the expectation function name for multiple test objects referenced in an array of names or identities"
   (loop for test across (get-tests test-identifiers)
      do (if ev-supplied-p
 	    (set-source test source expected-value)
 	    (set-source test source))))
 
 (defun get-expected-value (test)
+  "Get the expected-value slot of a test object referenced by name or identity"
   (expected-value (get-test test)))
 
 (defun set-expected-value (test value)
+  "Set the expected-value slot of a test object referenced by name or identity"
   (setf (expected-value (get-test test)) value))
 
 (defun set-expected-values (test-identifiers value)
+  "Set the expected-value slot of multiple test objects referenced in an array of names or identities"
   (loop for test across (get-tests test-identifiers)
        do (set-expected-value test value)))
 
@@ -122,13 +129,16 @@
   (let* ((local-test (get-test test)))
     (cond ((null source)
 	   (setf (before-function-source local-test)
-		 *test-empty-function*))
+		 '(lambda () nil)))
 	  ((and (listp source) (not (equal (car source) 'lambda)))
 	   (setf (before-function-source local-test) (list 'lambda nil source)))
 	  ((and (listp source) (equal (car source) 'lambda))
 	   (setf (before-function-source local-test) source)))
 
-    (setf (before-function-compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (before-function-compiled-form local-test)))
+    (setf (before-function-compiled-form local-test)
+	  (if (equalp (before-function-source local-test) (list 'lambda nil nil))
+	      *test-empty-function*
+	      (eval (before-function-source local-test))))
 
     (setf (before-function-run-status local-test) nil)
 
@@ -148,13 +158,16 @@
   (let* ((local-test (get-test test)))
     (cond ((null source)
 	   (setf (after-function-source local-test)
-		 *test-empty-function*))
+		 '(lambda () nil)))
 	  ((and (listp source) (not (equal (car source) 'lambda)))
 	   (setf (after-function-source local-test) (list 'lambda nil source)))
 	  ((and (listp source) (equal (car source) 'lambda))
 	   (setf (after-function-source local-test) source)))
 
-    (setf (after-function-compiled-form local-test) (nw-eval? (null (type-of-test local-test)) (after-function-compiled-form local-test)))
+    (setf (after-function-compiled-form local-test)
+	  (if (equalp (after-function-source local-test) (list 'lambda nil nil))
+	      *test-empty-function*
+	      (eval (after-function-source local-test))))
 
     (setf (after-function-run-status local-test) nil)
 
@@ -166,6 +179,7 @@
        do (set-after-function-source test source)))
 
 (defun get-name (test)
+  "Return the name of a test object"
   (if (get-test test)
       (name (get-test test))
       nil))
@@ -186,6 +200,7 @@
     local-test))
 
 (defun get-names (&optional (test-identifiers (all-tests)))
+  "Return the names of multiple test-objects referenced by an array of names or identities"
   (let* ((local-tests (get-tests test-identifiers))
 	(local-array (make-array (length local-tests))))
 
