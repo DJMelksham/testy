@@ -27,7 +27,7 @@
 (defun set-number-of-cores (n)
   ;;; rediculously rudimentary test
   (if (and (> n 0)
-	   (< n *most-positive-fixnum*))
+	   (< n most-positive-fixnum))
       (setf *number-of-cores* n)
       nil))
 
