@@ -13,7 +13,7 @@
 
 (defsystem #:testy
   :name "testy"
-  :version "0.0.0"
+  :version "1.0.0"
   :maintainer "Damien John Melksham"
   :author "Damien John Melksham"
   :licence "All rights reserved"
@@ -40,4 +40,4 @@
 	       (:file "reporting")
 	       (:file "convenient-test-accessors"))
 
-  :depends-on (#:uiop #:cffi #:bordeaux-threads))
+  :depends-on (#:uiop #:cffi))

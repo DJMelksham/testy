@@ -10,7 +10,7 @@
                       "This test test has a description" :SOURCE '(+ 1 1)
                       :EXPECTED-VALUE 2)
            (EQ (GET-TEST "A-test-name") (FETCH-TEST "A-test-name"))))
- (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.001)
+ (RE-EVALUATE) (EXPECTED-VALUE . T) (RUN-VALUE . T) (RUN-TIME . 0.004)
  (RESULT . T) (BEFORE-FUNCTION-SOURCE LAMBDA NIL NIL)
  (BEFORE-FUNCTION-RUN-STATUS . T) (AFTER-FUNCTION-SOURCE LAMBDA NIL NIL)
  (AFTER-FUNCTION-RUN-STATUS . T)) 
